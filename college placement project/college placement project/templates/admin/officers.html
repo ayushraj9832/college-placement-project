@@ -1,0 +1,114 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}Officers &amp; admins{% endblock %}
+{% block page_title %}Officers &amp; admins{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Placement cell accounts</h1>
+    <p>Create officer or administrator accounts and control who can access the placement cell.</p>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('admin_dashboard') }}"><i class="bi bi-arrow-left"></i> Dashboard</a>
+</div>
+
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head"><h3>Accounts</h3></div>
+    {% if officers %}
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Name</th><th>Role</th><th>Designation</th><th>Email</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            {% for officer in officers %}
+              <tr>
+                <td>
+                  <div class="person">
+                    <span class="avatar-sm">{{ officer.Name[:1] }}</span>
+                    <div>
+                      <strong>{{ officer.Name }}</strong>
+                      <span>{{ officer.Contact_Number }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ badge(officer.Account_Role) }}</td>
+                <td class="small">{{ officer.Designation }}</td>
+                <td class="small">{{ officer.Email }}</td>
+                <td>
+                  {% if officer.Is_Active %}
+                    <span class="badge badge-success">Active</span>
+                  {% else %}
+                    <span class="badge badge-muted">Inactive</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if officer.Officer_ID == session.get('user_id') %}
+                    <span class="small muted">Your account</span>
+                  {% else %}
+                    <form method="post" action="{{ url_for('admin_officer_toggle', officer_id=officer.Officer_ID) }}">
+                      <button class="btn btn-outline btn-sm" type="submit"
+                              data-confirm="{{ 'Deactivate' if officer.Is_Active else 'Activate' }} this account?">
+                        {{ 'Deactivate' if officer.Is_Active else 'Activate' }}
+                      </button>
+                    </form>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {{ empty('person-badge', 'No accounts yet', 'Create the first placement cell account using the form.') }}
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Add an account</h3></div>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('admin_officer_add') }}">
+        <div class="grid" style="gap:14px;">
+          <div class="field">
+            <label for="name">Full name <span class="req">*</span></label>
+            <input id="name" type="text" name="name" required maxlength="100" placeholder="e.g. Dr. Meera Joshi">
+          </div>
+          <div class="field">
+            <label for="email">Email <span class="req">*</span></label>
+            <input id="email" type="email" name="email" required maxlength="120" placeholder="name@college.edu">
+          </div>
+          <div class="field">
+            <label for="contact_number">Contact number <span class="req">*</span></label>
+            <input id="contact_number" type="tel" name="contact_number" required maxlength="15" placeholder="10-digit number">
+          </div>
+          <div class="field">
+            <label for="designation">Designation <span class="req">*</span></label>
+            <input id="designation" type="text" name="designation" required maxlength="80" placeholder="e.g. Assistant Placement Officer">
+          </div>
+          <div class="field">
+            <label for="account_role">Account role <span class="req">*</span></label>
+            <select id="account_role" name="account_role" required>
+              <option value="Officer">Placement Officer</option>
+              <option value="Admin">Administrator</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="password">Temporary password <span class="req">*</span></label>
+            <input id="password" type="password" name="password" required minlength="6"
+                   autocomplete="new-password" placeholder="At least 6 characters">
+            <span class="hint">The account holder can be given this password to log in.</span>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit"><i class="bi bi-person-plus"></i> Create account</button>
+        </div>
+      </form>
+      <div class="divider"></div>
+      <div class="notice info">
+        <i class="bi bi-shield-lock-fill"></i>
+        <div>
+          Officer accounts can manage day-to-day placement data. Administrator accounts also
+          see whole-college analytics and can create or deactivate other accounts.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

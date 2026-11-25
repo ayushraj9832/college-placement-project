@@ -1,0 +1,113 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}{{ company.Company_Name }}{% endblock %}
+{% block page_title %}Company details{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="small" href="{{ url_for('officer_companies') }}"><i class="bi bi-arrow-left"></i> All companies</a>
+    <h1 class="mt-1">{{ company.Company_Name }}</h1>
+    <p>{{ company.Industry }} · {{ company.Location }}</p>
+  </div>
+  <div class="actions">
+    {{ badge(company.Approval_Status) }}
+    {% if company.Approval_Status != 'Approved' %}
+      <form method="post" action="{{ url_for('officer_company_status', company_id=company.Company_ID, status='Approved') }}">
+        <button class="btn btn-success" type="submit"><i class="bi bi-check2"></i> Approve</button>
+      </form>
+    {% endif %}
+    {% if company.Approval_Status != 'Rejected' %}
+      <form method="post" action="{{ url_for('officer_company_status', company_id=company.Company_ID, status='Rejected') }}">
+        <button class="btn btn-danger" type="submit" data-confirm="Reject this company account?"><i class="bi bi-x"></i> Reject</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="dash-grid">
+  <div>
+    <div class="card">
+      <div class="card-head"><h3>Job openings</h3></div>
+      {% if jobs %}
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Role</th><th>Type</th><th>Deadline</th><th>Applicants</th><th></th></tr></thead>
+            <tbody>
+              {% for job in jobs %}
+                <tr>
+                  <td>
+                    <strong class="small">{{ job.Job_Title }}</strong>
+                    <div class="small muted">{{ job.Job_Location }} · {{ job.Salary_Package|money }} LPA</div>
+                  </td>
+                  <td><span class="badge badge-info">{{ job.Job_Type }}</span></td>
+                  <td class="small nowrap">{{ job.Application_Deadline|dmy }}</td>
+                  <td><strong>{{ job.Application_Count }}</strong></td>
+                  <td><a class="btn btn-outline btn-sm" href="{{ url_for('officer_eligibility', job_id=job.Job_ID) }}">Eligible</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        {{ empty('briefcase', 'No jobs posted', 'This company has not published any openings yet.') }}
+      {% endif %}
+    </div>
+
+    <div class="card mt-2">
+      <div class="card-head"><h3>Placements from this company</h3></div>
+      {% if placements %}
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Student</th><th>Role</th><th>Package</th><th>Status</th></tr></thead>
+            <tbody>
+              {% for placement in placements %}
+                <tr>
+                  <td>
+                    <div class="person">
+                      <span class="avatar-sm">{{ placement.Student_Name[:1] }}</span>
+                      <div><strong>{{ placement.Student_Name }}</strong><span>{{ placement.Branch }}</span></div>
+                    </div>
+                  </td>
+                  <td class="small">{{ placement.Job_Title }}</td>
+                  <td class="small">{{ placement.Package_Offered|money }} LPA</td>
+                  <td>{{ badge(placement.Status) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        {{ empty('award', 'No placements yet', 'No offers have been recorded for this company.') }}
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-body">
+        <div class="profile-head">
+          <div class="avatar-lg">{{ company.Company_Name[:1] }}</div>
+          <div>
+            <h3 style="font-size:1.05rem;">{{ company.Company_Name }}</h3>
+            <p class="small muted">{{ company.Industry }}</p>
+            <div class="mt-1">{{ badge(company.Approval_Status) }}</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="kv">
+          <div><span>Company ID</span><strong>#{{ company.Company_ID }}</strong></div>
+          <div><span>Location</span><strong>{{ company.Location }}</strong></div>
+          <div><span>HR name</span><strong>{{ company.HR_Name }}</strong></div>
+          <div><span>HR email</span><strong>{{ company.HR_Email }}</strong></div>
+          <div><span>Phone</span><strong>{{ company.Contact_Number }}</strong></div>
+          <div><span>Website</span>
+            <strong>{% if company.Website %}<a href="{{ company.Website }}" target="_blank" rel="noopener">Visit</a>{% else %}—{% endif %}</strong>
+          </div>
+          <div><span>Registered</span><strong>{{ company.Created_At|dmy }}</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

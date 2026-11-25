@@ -1,0 +1,17 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-stack">
+      {% for category, message in messages %}
+        {% set icons = {'success': 'check-circle-fill', 'danger': 'exclamation-octagon-fill',
+                        'warning': 'exclamation-triangle-fill', 'info': 'info-circle-fill'} %}
+        <div class="flash flash-{{ category }}">
+          <i class="bi bi-{{ icons.get(category, 'info-circle-fill') }}"></i>
+          <div>{{ message }}</div>
+          <button type="button" class="flash-close" aria-label="Dismiss">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}

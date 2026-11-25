@@ -1,0 +1,174 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}{{ job.Job_Title }}{% endblock %}
+{% block page_title %}Job details{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="small" href="{{ url_for('student_jobs') }}"><i class="bi bi-arrow-left"></i> Back to jobs</a>
+  </div>
+  <div class="actions">
+    <a class="btn btn-outline" href="{{ url_for('student_applications') }}">My applications</a>
+  </div>
+</div>
+
+<div class="job-hero">
+  <div class="between wrap">
+    <div>
+      <div class="flex gap-1" style="align-items:center;">
+        <span class="chip">{{ job.Industry }}</span>
+        <span class="chip">{{ job.Job_Type }}</span>
+        {% if not is_open %}<span class="chip" style="background:rgba(239,68,68,.2);color:#fecaca;">Deadline passed</span>{% endif %}
+      </div>
+      <h1>{{ job.Job_Title }}</h1>
+      <p><i class="bi bi-building"></i> {{ job.Company_Name }} · {{ job.Company_Location }}</p>
+      <div class="job-meta">
+        <span><i class="bi bi-geo-alt"></i> {{ job.Job_Location }}</span>
+        <span><i class="bi bi-cash-stack"></i> {{ job.Salary_Package|money }} LPA</span>
+        <span><i class="bi bi-mortarboard"></i> {{ job.Eligible_Branch }}</span>
+        <span><i class="bi bi-graph-up"></i> Min {{ job.Min_CGPA }} CGPA</span>
+        <span><i class="bi bi-calendar-event"></i> Apply by {{ job.Application_Deadline|dmy }}</span>
+      </div>
+    </div>
+    <div style="text-align:right;">
+      <div class="small" style="color:#c7d2fe;">Total applications</div>
+      <div style="font-size:1.8rem;font-weight:800;">{{ job.Application_Count }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="dash-grid">
+  <div>
+    <div class="card">
+      <div class="card-head"><h3>Role description</h3></div>
+      <div class="card-body">
+        <p class="text-sm" style="white-space:pre-line;color:var(--ink-2);">{{ job.Job_Description }}</p>
+        <div class="divider"></div>
+        <div class="kv">
+          <div><span>Job type</span><strong>{{ job.Job_Type }}</strong></div>
+          <div><span>Location</span><strong>{{ job.Job_Location }}</strong></div>
+          <div><span>Package</span><strong>{{ job.Salary_Package|money }} LPA</strong></div>
+          <div><span>Minimum CGPA</span><strong>{{ job.Min_CGPA }}</strong></div>
+          <div><span>Eligible branches</span><strong>{{ job.Eligible_Branch }}</strong></div>
+          <div><span>Application deadline</span><strong>{{ job.Application_Deadline|dmy }}</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-2">
+      <div class="card-head">
+        <div><h3>Recruitment process</h3><p>Rounds planned by the company.</p></div>
+      </div>
+      <div class="card-body">
+        {% if rounds %}
+          <div class="round-list">
+            {% for round in rounds %}
+              <div class="round-item">
+                <div class="round-num">{{ loop.index }}</div>
+                <div style="flex:1;">
+                  <strong>{{ round.Round_Name }}</strong>
+                  <span>{{ round.Round_Type }} · max {{ round.Max_Marks }} marks</span>
+                </div>
+                <div class="small muted nowrap">{{ round.Round_Date|dmy }}</div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          {{ empty('list-ol', 'Rounds not published yet', 'The recruiter will add rounds after shortlisting begins.') }}
+        {% endif %}
+      </div>
+    </div>
+
+    {% if application and interviews %}
+      <div class="card mt-2">
+        <div class="card-head"><h3>Your interview schedule</h3></div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Round</th><th>Date</th><th>Interviewer</th><th>Result</th></tr></thead>
+            <tbody>
+              {% for interview in interviews %}
+                <tr>
+                  <td><strong>{{ interview.Round_Name }}</strong><div class="small muted">{{ interview.Round_Type }}</div></td>
+                  <td class="small">{{ interview.Interview_Date|dmy }}</td>
+                  <td class="small">{{ interview.Interviewer_Name }}</td>
+                  <td>{{ badge(interview.Result) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-head"><h3>Your eligibility</h3></div>
+      <div class="card-body">
+        <div class="round-list">
+          <div class="round-item">
+            <div class="round-num" style="background:{{ '#dcfce7' if student.CGPA >= job.Min_CGPA else '#fee2e2' }};color:{{ '#15803d' if student.CGPA >= job.Min_CGPA else '#b91c1c' }};">
+              <i class="bi bi-{{ 'check-lg' if student.CGPA >= job.Min_CGPA else 'x-lg' }}"></i>
+            </div>
+            <div><strong>CGPA requirement</strong><span>Yours: {{ student.CGPA }} · Required: {{ job.Min_CGPA }}</span></div>
+          </div>
+          <div class="round-item">
+            <div class="round-num" style="background:{{ '#dcfce7' if (job.Eligible_Branch == 'All' or student.Branch in job.Eligible_Branch.split(',')) else '#fee2e2' }};color:{{ '#15803d' if (job.Eligible_Branch == 'All' or student.Branch in job.Eligible_Branch.split(',')) else '#b91c1c' }};">
+              <i class="bi bi-{{ 'check-lg' if (job.Eligible_Branch == 'All' or student.Branch in job.Eligible_Branch.split(',')) else 'x-lg' }}"></i>
+            </div>
+            <div><strong>Branch</strong><span>Yours: {{ student.Branch }} · Allowed: {{ job.Eligible_Branch }}</span></div>
+          </div>
+          <div class="round-item">
+            <div class="round-num" style="background:{{ '#dcfce7' if is_open else '#fee2e2' }};color:{{ '#15803d' if is_open else '#b91c1c' }};">
+              <i class="bi bi-{{ 'check-lg' if is_open else 'x-lg' }}"></i>
+            </div>
+            <div><strong>Deadline</strong><span>{{ job.Application_Deadline|dmy }}</span></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        {% if application %}
+          <div class="notice info">
+            <i class="bi bi-check-circle-fill"></i>
+            <div>
+              You applied on {{ application.Application_Date|dmy }}.<br>
+              Current status: {{ badge(application.Status) }}
+            </div>
+          </div>
+          <a class="btn btn-outline btn-block mt-2" href="{{ url_for('student_applications') }}">Track this application</a>
+        {% elif not is_open %}
+          <div class="notice danger"><i class="bi bi-clock-history"></i><div>Applications for this role are closed.</div></div>
+        {% elif eligible %}
+          <form method="post" action="{{ url_for('student_apply', job_id=job.Job_ID) }}">
+            <button class="btn btn-primary btn-block" type="submit"><i class="bi bi-send-fill"></i> Apply for this job</button>
+          </form>
+          <p class="small muted mt-1" style="text-align:center;">Your profile snapshot is attached automatically.</p>
+        {% else %}
+          <div class="notice"><i class="bi bi-exclamation-triangle-fill"></i><div>You do not meet the eligibility criteria for this role.</div></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card mt-2">
+      <div class="card-head"><h3>About the company</h3></div>
+      <div class="card-body">
+        <div class="flex gap-2" style="align-items:center;">
+          <div class="company-logo">{{ job.Company_Name[:1] }}</div>
+          <div>
+            <strong>{{ job.Company_Name }}</strong>
+            <div class="small muted">{{ job.Industry }}</div>
+          </div>
+        </div>
+        <div class="kv mt-2">
+          <div><span>Location</span><strong>{{ job.Company_Location }}</strong></div>
+          <div><span>Website</span>
+            <strong>{% if job.Website %}<a href="{{ job.Website }}" target="_blank" rel="noopener">Visit site</a>{% else %}—{% endif %}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

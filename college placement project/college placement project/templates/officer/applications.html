@@ -1,0 +1,91 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}Applications{% endblock %}
+{% block page_title %}Applications{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>All applications</h1>
+    <p>{{ applications|length }} application{{ '' if applications|length == 1 else 's' }} across every company and job.</p>
+  </div>
+</div>
+
+<form class="filters" method="get" action="{{ url_for('officer_applications') }}">
+  <div class="field grow">
+    <label for="q">Search</label>
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input id="q" type="text" name="q" value="{{ q }}" placeholder="Student, company or role">
+    </div>
+  </div>
+  <div class="field">
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="">All statuses</option>
+      {% for s in APP_STATUSES %}
+        <option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label for="company_id">Company</label>
+    <select id="company_id" name="company_id">
+      <option value="0">All companies</option>
+      {% for company in companies %}
+        <option value="{{ company.Company_ID }}" {% if company_id == company.Company_ID %}selected{% endif %}>{{ company.Company_Name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="filter-actions">
+    <button class="btn btn-primary" type="submit">Filter</button>
+    {% if q or status or company_id %}<a class="btn btn-ghost" href="{{ url_for('officer_applications') }}">Clear</a>{% endif %}
+  </div>
+</form>
+
+<div class="card">
+  {% if applications %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Company &amp; role</th>
+            <th>Applied</th>
+            <th>Status</th>
+            <th>Offer</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in applications %}
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="avatar-sm">{{ app.Student_Name[:1] }}</span>
+                  <div>
+                    <strong>{{ app.Student_Name }}</strong>
+                    <span>{{ app.Branch }} · CGPA {{ app.CGPA }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <strong class="small">{{ app.Job_Title }}</strong>
+                <div class="small muted">{{ app.Company_Name }}</div>
+              </td>
+              <td class="small nowrap">{{ app.Application_Date|dmy }}</td>
+              <td>{{ badge(app.Status) }}</td>
+              <td>{% if app.Placement_Status %}{{ badge(app.Placement_Status) }}{% else %}<span class="small muted">—</span>{% endif %}</td>
+              <td class="nowrap">
+                <a class="btn btn-outline btn-sm" href="{{ url_for('officer_student_detail', student_id=app.Student_ID) }}">Student</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty('file-earmark-text', 'No applications found', 'Try a different filter combination.') }}
+  {% endif %}
+</div>
+{% endblock %}

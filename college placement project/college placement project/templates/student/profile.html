@@ -1,0 +1,115 @@
+{% extends "dashboard_base.html" %}
+{% block title %}My profile{% endblock %}
+{% block page_title %}My profile{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Profile &amp; academic details</h1>
+    <p>Keep these details current — they decide which jobs you are eligible for.</p>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('student_dashboard') }}"><i class="bi bi-arrow-left"></i> Dashboard</a>
+</div>
+
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head"><h3>Edit details</h3></div>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('student_profile') }}">
+        <div class="form-grid">
+          <div class="field span-2">
+            <label for="name">Full name <span class="req">*</span></label>
+            <input id="name" type="text" name="name" required maxlength="100" value="{{ student.Name }}">
+          </div>
+          <div class="field">
+            <label for="email">College email</label>
+            <input id="email" type="email" value="{{ student.Email }}" readonly>
+            <span class="hint">Email changes are handled by the placement office.</span>
+          </div>
+          <div class="field">
+            <label for="phone">Phone <span class="req">*</span></label>
+            <input id="phone" type="tel" name="phone" required maxlength="15" value="{{ student.Phone }}">
+          </div>
+          <div class="field">
+            <label for="date_of_birth">Date of birth <span class="req">*</span></label>
+            <input id="date_of_birth" type="date" name="date_of_birth" required value="{{ student.Date_of_Birth }}">
+          </div>
+          <div class="field">
+            <label for="gender">Gender <span class="req">*</span></label>
+            <select id="gender" name="gender" required>
+              {% for g in ['Male', 'Female', 'Other'] %}
+                <option value="{{ g }}" {% if student.Gender == g %}selected{% endif %}>{{ g }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="branch">Branch <span class="req">*</span></label>
+            <select id="branch" name="branch" required>
+              {% for b in BRANCHES %}
+                <option value="{{ b }}" {% if student.Branch == b %}selected{% endif %}>{{ b }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="batch_year">Graduation batch <span class="req">*</span></label>
+            <input id="batch_year" type="number" name="batch_year" min="2000" max="2100" required value="{{ student.Batch_Year }}">
+          </div>
+          <div class="field">
+            <label for="cgpa">CGPA <span class="req">*</span></label>
+            <input id="cgpa" type="number" name="cgpa" min="0" max="10" step="0.01" required value="{{ student.CGPA }}">
+          </div>
+          <div class="field span-2">
+            <label for="address">Address</label>
+            <input id="address" type="text" name="address" maxlength="255" value="{{ student.Address or '' }}">
+          </div>
+        </div>
+        <div class="form-actions">
+          <a class="btn btn-ghost" href="{{ url_for('student_dashboard') }}">Cancel</a>
+          <button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle"></i> Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-body">
+        <div class="profile-head">
+          <div class="avatar-lg">{{ student.Name[:1]|upper }}</div>
+          <div>
+            <h3 style="font-size:1.05rem;">{{ student.Name }}</h3>
+            <p class="small muted">{{ student.Branch }} · Batch {{ student.Batch_Year }}</p>
+            <span class="badge badge-info mt-1">CGPA {{ student.CGPA }}</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="kv">
+          <div><span>Email</span><strong>{{ student.Email }}</strong></div>
+          <div><span>Phone</span><strong>{{ student.Phone }}</strong></div>
+          <div><span>Registered on</span><strong>{{ student.Created_At|dmy }}</strong></div>
+          <div><span>Student ID</span><strong>#{{ student.Student_ID }}</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-2">
+      <div class="card-head"><h3>Eligibility tips</h3></div>
+      <div class="card-body">
+        <div class="notice info">
+          <i class="bi bi-lightbulb-fill"></i>
+          <div>
+            Jobs check two things: your <strong>CGPA</strong> against the job's minimum,
+            and your <strong>branch</strong> against the allowed branch list.
+            Updating your CGPA here immediately changes your eligibility.
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p class="small muted">
+          The placement cell may correct academic records after verification. If a
+          correction is needed, contact the office with your marksheet.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

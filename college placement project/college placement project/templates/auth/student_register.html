@@ -1,0 +1,87 @@
+{% extends "auth/auth_base.html" %}
+{% block title %}Student registration{% endblock %}
+{% block portal_name %}Student registration{% endblock %}
+{% block form_title %}Create your student account{% endblock %}
+{% block form_subtitle %}Your academic details are used for automatic eligibility checks.{% endblock %}
+{% block side_title %}Your profile is your placement passport.{% endblock %}
+{% block side_text %}Keep your branch, batch and CGPA accurate so the system can match you with the right opportunities.{% endblock %}
+{% block card_class %}wide{% endblock %}
+
+{% block form %}
+<form method="post" action="{{ url_for('student_register') }}">
+  <div class="form-grid">
+    <div class="field span-2">
+      <label for="name">Full name <span class="req">*</span></label>
+      <input id="name" type="text" name="name" required maxlength="100"
+             value="{{ request.form.get('name', '') }}" placeholder="As printed on your marksheet">
+    </div>
+    <div class="field">
+      <label for="email">College email <span class="req">*</span></label>
+      <input id="email" type="email" name="email" required maxlength="120"
+             value="{{ request.form.get('email', '') }}" placeholder="you@college.edu">
+    </div>
+    <div class="field">
+      <label for="phone">Phone number <span class="req">*</span></label>
+      <input id="phone" type="tel" name="phone" required maxlength="15"
+             value="{{ request.form.get('phone', '') }}" placeholder="10-digit mobile number">
+    </div>
+    <div class="field">
+      <label for="date_of_birth">Date of birth <span class="req">*</span></label>
+      <input id="date_of_birth" type="date" name="date_of_birth" required
+             value="{{ request.form.get('date_of_birth', '') }}">
+    </div>
+    <div class="field">
+      <label for="gender">Gender <span class="req">*</span></label>
+      <select id="gender" name="gender" required>
+        <option value="">Select</option>
+        {% for g in ['Male', 'Female', 'Other'] %}
+          <option value="{{ g }}" {% if request.form.get('gender') == g %}selected{% endif %}>{{ g }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="branch">Branch <span class="req">*</span></label>
+      <select id="branch" name="branch" required>
+        <option value="">Select branch</option>
+        {% for b in BRANCHES %}
+          <option value="{{ b }}" {% if request.form.get('branch') == b %}selected{% endif %}>{{ b }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="field">
+      <label for="batch_year">Graduation batch <span class="req">*</span></label>
+      <input id="batch_year" type="number" name="batch_year" min="2000" max="2100" required
+             value="{{ request.form.get('batch_year', 2027) }}">
+      <span class="hint">The year you will graduate, e.g. 2027.</span>
+    </div>
+    <div class="field">
+      <label for="cgpa">Current CGPA <span class="req">*</span></label>
+      <input id="cgpa" type="number" name="cgpa" step="0.01" min="0" max="10" required
+             value="{{ request.form.get('cgpa', '') }}" placeholder="e.g. 8.25">
+    </div>
+    <div class="field span-2">
+      <label for="address">Address</label>
+      <input id="address" type="text" name="address" maxlength="255"
+             value="{{ request.form.get('address', '') }}" placeholder="City and state">
+    </div>
+    <div class="field">
+      <label for="password">Password <span class="req">*</span></label>
+      <input id="password" type="password" name="password" required minlength="6"
+             autocomplete="new-password" placeholder="At least 6 characters">
+    </div>
+    <div class="field">
+      <label for="confirm_password">Confirm password <span class="req">*</span></label>
+      <input id="confirm_password" type="password" name="confirm_password" required minlength="6"
+             autocomplete="new-password" placeholder="Repeat your password">
+    </div>
+  </div>
+  <div class="form-actions">
+    <a class="btn btn-ghost" href="{{ url_for('student_login') }}">Cancel</a>
+    <button class="btn btn-primary" type="submit"><i class="bi bi-person-plus-fill"></i> Create account</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block alt %}
+  Already registered? <a href="{{ url_for('student_login') }}">Log in</a>
+{% endblock %}

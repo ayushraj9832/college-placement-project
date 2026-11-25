@@ -1,0 +1,72 @@
+{% extends "dashboard_base.html" %}
+{% block title %}Edit {{ student.Name }}{% endblock %}
+{% block page_title %}Edit student{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="small" href="{{ url_for('officer_student_detail', student_id=student.Student_ID) }}"><i class="bi bi-arrow-left"></i> Student record</a>
+    <h1 class="mt-1">Edit {{ student.Name }}</h1>
+    <p>Correct academic details after verifying the student's marksheet.</p>
+  </div>
+</div>
+
+<div class="card" style="max-width:820px;">
+  <div class="card-head"><h3>Student details</h3></div>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('officer_student_edit', student_id=student.Student_ID) }}">
+      <div class="form-grid">
+        <div class="field span-2">
+          <label for="name">Full name <span class="req">*</span></label>
+          <input id="name" type="text" name="name" required maxlength="100" value="{{ student.Name }}">
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" value="{{ student.Email }}" readonly>
+          <span class="hint">Login email cannot be changed here.</span>
+        </div>
+        <div class="field">
+          <label for="phone">Phone <span class="req">*</span></label>
+          <input id="phone" type="tel" name="phone" required maxlength="15" value="{{ student.Phone }}">
+        </div>
+        <div class="field">
+          <label for="date_of_birth">Date of birth <span class="req">*</span></label>
+          <input id="date_of_birth" type="date" name="date_of_birth" required value="{{ student.Date_of_Birth }}">
+        </div>
+        <div class="field">
+          <label for="gender">Gender <span class="req">*</span></label>
+          <select id="gender" name="gender" required>
+            {% for g in ['Male', 'Female', 'Other'] %}
+              <option value="{{ g }}" {% if student.Gender == g %}selected{% endif %}>{{ g }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="branch">Branch <span class="req">*</span></label>
+          <select id="branch" name="branch" required>
+            {% for b in BRANCHES %}
+              <option value="{{ b }}" {% if student.Branch == b %}selected{% endif %}>{{ b }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="batch_year">Batch year <span class="req">*</span></label>
+          <input id="batch_year" type="number" name="batch_year" min="2000" max="2100" required value="{{ student.Batch_Year }}">
+        </div>
+        <div class="field">
+          <label for="cgpa">CGPA <span class="req">*</span></label>
+          <input id="cgpa" type="number" name="cgpa" min="0" max="10" step="0.01" required value="{{ student.CGPA }}">
+        </div>
+        <div class="field span-2">
+          <label for="address">Address</label>
+          <input id="address" type="text" name="address" maxlength="255" value="{{ student.Address or '' }}">
+        </div>
+      </div>
+      <div class="form-actions">
+        <a class="btn btn-ghost" href="{{ url_for('officer_student_detail', student_id=student.Student_ID) }}">Cancel</a>
+        <button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle"></i> Save record</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

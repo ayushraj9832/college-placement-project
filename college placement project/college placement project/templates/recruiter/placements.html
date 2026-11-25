@@ -1,0 +1,75 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}Offers{% endblock %}
+{% block page_title %}Offers &amp; placements{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Offers released</h1>
+    <p>Every offer your company has released, with the candidate's current response.</p>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('recruiter_jobs') }}"><i class="bi bi-briefcase"></i> Job openings</a>
+</div>
+
+<div class="card">
+  {% if placements %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Role</th>
+            <th>Package</th>
+            <th>Placement date</th>
+            <th>Joining date</th>
+            <th>Status</th>
+            <th>Update status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for placement in placements %}
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="avatar-sm">{{ placement.Student_Name[:1] }}</span>
+                  <div>
+                    <strong>{{ placement.Student_Name }}</strong>
+                    <span>{{ placement.Branch }} · CGPA {{ placement.CGPA }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="small">{{ placement.Job_Title }}</td>
+              <td><strong>{{ placement.Package_Offered|money }}</strong> <span class="small muted">LPA</span></td>
+              <td class="small nowrap">{{ placement.Placement_Date|dmy }}</td>
+              <td class="small nowrap">{{ placement.Joining_Date|dmy }}</td>
+              <td>{{ badge(placement.Status) }}</td>
+              <td>
+                <form method="post" action="{{ url_for('recruiter_placement_status', placement_id=placement.Placement_ID) }}" class="table-actions">
+                  <select name="status" class="mini-select" aria-label="Offer status">
+                    {% for s in PLACEMENT_STATUSES %}
+                      <option value="{{ s }}" {% if placement.Status == s %}selected{% endif %}>{{ s }}</option>
+                    {% endfor %}
+                  </select>
+                  <button class="btn btn-outline btn-sm" type="submit">Save</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty('award', 'No offers released yet', 'Shortlist an applicant and use the Offer button to create the first placement record.') }}
+  {% endif %}
+</div>
+
+<div class="notice info mt-2">
+  <i class="bi bi-info-circle-fill"></i>
+  <div>
+    A candidate may hold offers from more than one company, but a student can receive only
+    one offer per job. Update the status as the candidate responds — the placement cell
+    sees the change immediately.
+  </div>
+</div>
+{% endblock %}

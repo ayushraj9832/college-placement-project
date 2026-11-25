@@ -1,0 +1,86 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}Students{% endblock %}
+{% block page_title %}Students{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Student records</h1>
+    <p>{{ students|length }} student{{ '' if students|length == 1 else 's' }} shown. Manage academic data and placement status.</p>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('officer_reports') }}"><i class="bi bi-file-earmark-bar-graph"></i> Unplaced report</a>
+</div>
+
+<form class="filters" method="get" action="{{ url_for('officer_students') }}">
+  <div class="field grow">
+    <label for="q">Search</label>
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input id="q" type="text" name="q" value="{{ q }}" placeholder="Name, email or branch">
+    </div>
+  </div>
+  <div class="field">
+    <label for="branch">Branch</label>
+    <select id="branch" name="branch">
+      <option value="">All branches</option>
+      {% for row in branches %}
+        <option value="{{ row.Branch }}" {% if branch == row.Branch %}selected{% endif %}>{{ row.Branch }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="filter-actions">
+    <button class="btn btn-primary" type="submit">Filter</button>
+    {% if q or branch %}<a class="btn btn-ghost" href="{{ url_for('officer_students') }}">Clear</a>{% endif %}
+  </div>
+</form>
+
+<div class="card">
+  {% if students %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Branch</th>
+            <th>CGPA</th>
+            <th>Batch</th>
+            <th>Applications</th>
+            <th>Placement</th>
+            <th>Highest package</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="avatar-sm">{{ student.Name[:1] }}</span>
+                  <div>
+                    <strong>{{ student.Name }}</strong>
+                    <span>{{ student.Email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="small">{{ student.Branch }}</td>
+              <td><strong>{{ student.CGPA }}</strong></td>
+              <td class="small">{{ student.Batch_Year }}</td>
+              <td class="small">{{ student.Applications }}</td>
+              <td>{{ badge(student.Placement_Status) }}</td>
+              <td class="small">
+                {% if student.Highest_Package %}{{ student.Highest_Package|money }} LPA{% else %}<span class="muted">—</span>{% endif %}
+              </td>
+              <td class="nowrap">
+                <a class="btn btn-outline btn-sm" href="{{ url_for('officer_student_detail', student_id=student.Student_ID) }}">View</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty('people', 'No students found', 'Try a different search term or branch.') }}
+  {% endif %}
+</div>
+{% endblock %}

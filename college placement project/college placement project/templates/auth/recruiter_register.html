@@ -1,0 +1,68 @@
+{% extends "auth/auth_base.html" %}
+{% block title %}Recruiter registration{% endblock %}
+{% block portal_name %}Company registration{% endblock %}
+{% block form_title %}Register your company{% endblock %}
+{% block form_subtitle %}The placement cell verifies every company before jobs go live.{% endblock %}
+{% block side_title %}Build your campus hiring pipeline.{% endblock %}
+{% block side_text %}One verified company account gives your HR team control over jobs, applicants, rounds and offers.{% endblock %}
+{% block card_class %}wide{% endblock %}
+
+{% block form %}
+<form method="post" action="{{ url_for('recruiter_register') }}">
+  <div class="form-grid">
+    <div class="field">
+      <label for="company_name">Company name <span class="req">*</span></label>
+      <input id="company_name" type="text" name="company_name" required maxlength="120"
+             value="{{ request.form.get('company_name', '') }}" placeholder="Registered company name">
+    </div>
+    <div class="field">
+      <label for="industry">Industry <span class="req">*</span></label>
+      <input id="industry" type="text" name="industry" required maxlength="80"
+             value="{{ request.form.get('industry', '') }}" placeholder="e.g. IT Services">
+    </div>
+    <div class="field">
+      <label for="location">Head office location <span class="req">*</span></label>
+      <input id="location" type="text" name="location" required maxlength="100"
+             value="{{ request.form.get('location', '') }}" placeholder="City">
+    </div>
+    <div class="field">
+      <label for="website">Website</label>
+      <input id="website" type="url" name="website" maxlength="150"
+             value="{{ request.form.get('website', '') }}" placeholder="https://company.com">
+    </div>
+    <div class="field">
+      <label for="hr_name">HR contact name <span class="req">*</span></label>
+      <input id="hr_name" type="text" name="hr_name" required maxlength="100"
+             value="{{ request.form.get('hr_name', '') }}" placeholder="Primary recruiter">
+    </div>
+    <div class="field">
+      <label for="hr_email">HR email (used to log in) <span class="req">*</span></label>
+      <input id="hr_email" type="email" name="hr_email" required maxlength="120"
+             value="{{ request.form.get('hr_email', '') }}" placeholder="hr@company.com">
+    </div>
+    <div class="field">
+      <label for="contact_number">Contact number <span class="req">*</span></label>
+      <input id="contact_number" type="tel" name="contact_number" required maxlength="15"
+             value="{{ request.form.get('contact_number', '') }}" placeholder="Office or mobile number">
+    </div>
+    <div class="field">
+      <label for="password">Password <span class="req">*</span></label>
+      <input id="password" type="password" name="password" required minlength="6"
+             autocomplete="new-password" placeholder="At least 6 characters">
+    </div>
+    <div class="field">
+      <label for="confirm_password">Confirm password <span class="req">*</span></label>
+      <input id="confirm_password" type="password" name="confirm_password" required minlength="6"
+             autocomplete="new-password" placeholder="Repeat your password">
+    </div>
+  </div>
+  <div class="form-actions">
+    <a class="btn btn-ghost" href="{{ url_for('recruiter_login') }}">Cancel</a>
+    <button class="btn btn-primary" type="submit"><i class="bi bi-building-add"></i> Submit for approval</button>
+  </div>
+</form>
+{% endblock %}
+
+{% block alt %}
+  Already registered? <a href="{{ url_for('recruiter_login') }}">Recruiter login</a>
+{% endblock %}

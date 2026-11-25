@@ -1,0 +1,111 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}Browse jobs{% endblock %}
+{% block page_title %}Browse jobs{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Open opportunities</h1>
+    <p>{{ jobs|length }} role{{ '' if jobs|length == 1 else 's' }} match your current filters. Eligibility is checked live.</p>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('student_applications') }}"><i class="bi bi-file-earmark-text"></i> My applications</a>
+</div>
+
+<form class="filters" method="get" action="{{ url_for('student_jobs') }}">
+  <div class="field grow">
+    <label for="q">Search</label>
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input id="q" type="text" name="q" value="{{ q }}" placeholder="Role or company">
+    </div>
+  </div>
+  <div class="field">
+    <label for="branch">Branch</label>
+    <select id="branch" name="branch">
+      <option value="">All branches</option>
+      {% for b in BRANCHES %}
+        <option value="{{ b }}" {% if branch == b %}selected{% endif %}>{{ b }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="field" style="flex:0 0 auto;">
+    <label>&nbsp;</label>
+    <label class="check-line" style="padding:9px 0;">
+      <input type="checkbox" name="eligible" value="1" {% if eligible_only %}checked{% endif %}>
+      Only eligible jobs
+    </label>
+  </div>
+  <div class="filter-actions">
+    <button class="btn btn-primary" type="submit">Apply filters</button>
+    {% if q or branch or eligible_only %}
+      <a class="btn btn-ghost" href="{{ url_for('student_jobs') }}">Clear</a>
+    {% endif %}
+  </div>
+</form>
+
+{% if jobs %}
+  <div class="job-grid">
+    {% for job in jobs %}
+      <article class="job-card">
+        <div class="job-top">
+          <div class="company-logo">{{ job.Company_Name[:1] }}</div>
+          <div style="flex:1;">
+            <div class="job-company">{{ job.Company_Name }}</div>
+            <h3 class="job-title">
+              <a href="{{ url_for('student_job_detail', job_id=job.Job_ID) }}">{{ job.Job_Title }}</a>
+            </h3>
+          </div>
+          {% if job.Has_Applied %}
+            <span class="badge badge-success"><i class="bi bi-check2"></i> Applied</span>
+          {% elif job.Eligible %}
+            <span class="badge badge-info">Eligible</span>
+          {% else %}
+            <span class="badge badge-muted">Not eligible</span>
+          {% endif %}
+        </div>
+
+        <p class="job-desc">{{ job.Job_Description }}</p>
+
+        <div class="job-meta">
+          <span><i class="bi bi-geo-alt"></i> {{ job.Job_Location }}</span>
+          <span><i class="bi bi-cash-stack"></i> {{ job.Salary_Package|money }} LPA</span>
+          <span><i class="bi bi-mortarboard"></i> {{ job.Eligible_Branch }}</span>
+          <span><i class="bi bi-graph-up"></i> Min {{ job.Min_CGPA }}</span>
+        </div>
+
+        {% if not job.Eligible %}
+          <div class="notice" style="padding:9px 12px;font-size:.76rem;">
+            <i class="bi bi-info-circle"></i>
+            <div>
+              Requires {{ job.Min_CGPA }} CGPA
+              {% if job.Eligible_Branch != 'All' %} and branch {{ job.Eligible_Branch }}{% endif %}.
+              Your profile: {{ student.CGPA }} CGPA, {{ student.Branch }}.
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="job-foot">
+          <div class="small muted">Apply by <strong>{{ job.Application_Deadline|dmy }}</strong></div>
+          <div class="flex gap-1">
+            <a class="btn btn-outline btn-sm" href="{{ url_for('student_job_detail', job_id=job.Job_ID) }}">Details</a>
+            {% if job.Has_Applied %}
+              <span class="btn btn-success btn-sm" style="cursor:default;">Applied</span>
+            {% elif job.Eligible %}
+              <form method="post" action="{{ url_for('student_apply', job_id=job.Job_ID) }}">
+                <button class="btn btn-primary btn-sm" type="submit">Apply</button>
+              </form>
+            {% else %}
+              <button class="btn btn-outline btn-sm" type="button" disabled>Not eligible</button>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card">
+    {{ empty('briefcase', 'No jobs match your filters', 'Try clearing the filters or check back after new companies are approved.') }}
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,59 @@
+{% macro badge(status) -%}
+  {%- set tones = {
+    'Applied': 'info',
+    'Under Review': 'warn',
+    'Shortlisted': 'violet',
+    'Interview Scheduled': 'violet',
+    'Selected': 'success',
+    'Rejected': 'danger',
+    'Withdrawn': 'muted',
+    'Pending': 'warn',
+    'Pass': 'success',
+    'Fail': 'danger',
+    'On Hold': 'warn',
+    'Offer Released': 'info',
+    'Offer Accepted': 'success',
+    'Offer Declined': 'danger',
+    'Joined': 'success',
+    'Approved': 'success',
+    'Pending Approval': 'warn',
+    'Officer': 'violet',
+    'Admin': 'info',
+    'Active': 'success',
+    'Inactive': 'muted'
+  } -%}
+  {%- if status -%}
+    <span class="badge badge-{{ tones.get(status, 'muted') }}">{{ status }}</span>
+  {%- else -%}
+    <span class="badge badge-muted">—</span>
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro stat(label, value, icon, tone='indigo', sub='') %}
+<div class="stat-card">
+  <div class="stat-icon {{ tone }}"><i class="bi bi-{{ icon }}"></i></div>
+  <div>
+    <div class="stat-value">{{ value }}</div>
+    <div class="stat-label">{{ label }}</div>
+    {% if sub %}<div class="stat-sub">{{ sub }}</div>{% endif %}
+  </div>
+</div>
+{% endmacro %}
+
+{% macro empty(icon, title, text='') %}
+<div class="empty">
+  <i class="bi bi-{{ icon }}"></i>
+  <strong>{{ title }}</strong>
+  {% if text %}<p>{{ text }}</p>{% endif %}
+</div>
+{% endmacro %}
+
+{% macro initials(name) %}{{ (name or '?')[:1]|upper }}{% endmacro %}
+
+{% macro status_select(name, selected) %}
+<select name="{{ name }}">
+  {% for status in MANUAL_APP_STATUSES %}
+    <option value="{{ status }}" {% if status == selected %}selected{% endif %}>{{ status }}</option>
+  {% endfor %}
+</select>
+{% endmacro %}

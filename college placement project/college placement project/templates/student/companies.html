@@ -1,0 +1,42 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import empty %}
+{% block title %}Companies{% endblock %}
+{% block page_title %}Companies{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Recruiting companies</h1>
+    <p>Approved companies participating in this placement season.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('student_jobs') }}"><i class="bi bi-briefcase"></i> Browse jobs</a>
+</div>
+
+{% if companies %}
+  <div class="company-grid">
+    {% for company in companies %}
+      <article class="company-card">
+        <div class="company-card-head">
+          <div class="company-logo">{{ company.Company_Name[:1] }}</div>
+          <div>
+            <h3>{{ company.Company_Name }}</h3>
+            <p>{{ company.Industry }}</p>
+          </div>
+        </div>
+        <p class="text-sm muted">
+          <i class="bi bi-geo-alt"></i> {{ company.Location }}<br>
+          {% if company.Website %}
+            <a class="small" href="{{ company.Website }}" target="_blank" rel="noopener">Visit website <i class="bi bi-box-arrow-up-right"></i></a>
+          {% endif %}
+        </p>
+        <div class="company-facts">
+          <div><b>{{ company.Open_Jobs }}</b><span>Open roles</span></div>
+          <div><b>{{ company.Selections }}</b><span>Students placed</span></div>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card">{{ empty('buildings', 'No approved companies yet', 'The placement cell will publish companies here.') }}</div>
+{% endif %}
+{% endblock %}

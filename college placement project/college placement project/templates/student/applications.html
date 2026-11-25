@@ -1,0 +1,90 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}My applications{% endblock %}
+{% block page_title %}My applications{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Application history</h1>
+    <p>Every application, its current status and the latest interview outcome.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('student_jobs') }}"><i class="bi bi-plus-lg"></i> Apply to a new job</a>
+</div>
+
+<div class="card">
+  {% if applications %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th>Company &amp; role</th>
+            <th>Applied on</th>
+            <th>Status</th>
+            <th>Interviews</th>
+            <th>Latest result</th>
+            <th>Offer</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for app in applications %}
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="avatar-sm">{{ app.Company_Name[:1] }}</span>
+                  <div>
+                    <strong>{{ app.Job_Title }}</strong>
+                    <span>{{ app.Company_Name }} · {{ app.Salary_Package|money }} LPA</span>
+                  </div>
+                </div>
+              </td>
+              <td class="small nowrap">{{ app.Application_Date|dmy }}</td>
+              <td>{{ badge(app.Status) }}</td>
+              <td class="small">{{ app.Interview_Count }} scheduled</td>
+              <td>{% if app.Last_Result %}{{ badge(app.Last_Result) }}{% else %}<span class="small muted">—</span>{% endif %}</td>
+              <td>
+                {% if app.Placement_Status %}
+                  {{ badge(app.Placement_Status) }}
+                  <div class="small muted">{{ app.Package_Offered|money }} LPA</div>
+                {% else %}
+                  <span class="small muted">—</span>
+                {% endif %}
+              </td>
+              <td class="nowrap">
+                <div class="table-actions">
+                  <a class="btn btn-outline btn-sm" href="{{ url_for('student_job_detail', job_id=app.Job_ID) }}">View</a>
+                  {% if app.Status in ['Applied', 'Under Review', 'Shortlisted', 'Interview Scheduled'] %}
+                    <form method="post" action="{{ url_for('student_application_withdraw', application_id=app.Application_ID) }}">
+                      <button class="btn btn-danger btn-sm" type="submit"
+                              data-confirm="Withdraw this application? This cannot be undone.">
+                        Withdraw
+                      </button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty('file-earmark-text', 'No applications yet', 'Browse the open jobs and apply to a role you are eligible for.') }}
+  {% endif %}
+</div>
+
+<div class="card mt-2">
+  <div class="card-head"><h3>What the statuses mean</h3></div>
+  <div class="card-body">
+    <div class="flex gap-1 wrap">
+      {{ badge('Applied') }} <span class="small muted">submitted, waiting for review</span>
+      {{ badge('Under Review') }} <span class="small muted">recruiter is screening</span>
+      {{ badge('Shortlisted') }} <span class="small muted">moving to interviews</span>
+      {{ badge('Interview Scheduled') }} <span class="small muted">check your interview dates</span>
+      {{ badge('Selected') }} <span class="small muted">offer created</span>
+      {{ badge('Rejected') }} <span class="small muted">not selected this time</span>
+    </div>
+  </div>
+</div>
+{% endblock %}

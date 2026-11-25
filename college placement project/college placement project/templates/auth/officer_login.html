@@ -1,0 +1,34 @@
+{% extends "auth/auth_base.html" %}
+{% block title %}Placement officer login{% endblock %}
+{% block portal_name %}Placement cell{% endblock %}
+{% block form_title %}Officer login{% endblock %}
+{% block form_subtitle %}Authorised placement office staff only.{% endblock %}
+{% block side_title %}Run the placement season from one control room.{% endblock %}
+{% block side_text %}Approve companies, monitor applications and interviews, maintain offers and generate accurate reports.{% endblock %}
+
+{% block form %}
+<form method="post" action="{{ url_for('officer_login') }}" class="grid" style="gap:14px;">
+  <div class="field">
+    <label for="email">Officer email</label>
+    <input id="email" type="email" name="email" required autocomplete="email"
+           placeholder="name@college.edu" value="{{ request.form.get('email', '') }}">
+  </div>
+  <div class="field">
+    <label for="password">Password</label>
+    <input id="password" type="password" name="password" required autocomplete="current-password"
+           placeholder="Enter your password">
+  </div>
+  <button class="btn btn-primary btn-block" type="submit">
+    <i class="bi bi-shield-lock"></i> Log in to placement cell
+  </button>
+</form>
+
+<div class="demo-note">
+  <strong>Demo officer:</strong> <code>suresh.kulkarni@college.edu</code> / <code>Officer@123</code>
+</div>
+{% endblock %}
+
+{% block alt %}
+  Administrator? <a href="{{ url_for('admin_login') }}">Administrator login</a>
+  <div class="small mt-2"><a href="{{ url_for('index') }}">Back to website</a></div>
+{% endblock %}

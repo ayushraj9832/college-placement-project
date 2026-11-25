@@ -1,0 +1,63 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}Interviews{% endblock %}
+{% block page_title %}Interviews{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Interview activity</h1>
+    <p>Every scheduled interview across all companies and rounds.</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-outline" href="{{ url_for('officer_interviews', when='upcoming') }}">Upcoming</a>
+    <a class="btn btn-outline" href="{{ url_for('officer_interviews', when='past') }}">Completed</a>
+    <a class="btn btn-outline" href="{{ url_for('officer_interviews', when='all') }}">All</a>
+  </div>
+</div>
+
+<div class="card">
+  {% if interviews %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Company &amp; role</th>
+            <th>Round</th>
+            <th>Date &amp; time</th>
+            <th>Interviewer</th>
+            <th>Marks</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for interview in interviews %}
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="avatar-sm">{{ interview.Student_Name[:1] }}</span>
+                  <div><strong>{{ interview.Student_Name }}</strong><span>{{ interview.Branch }}</span></div>
+                </div>
+              </td>
+              <td>
+                <strong class="small">{{ interview.Job_Title }}</strong>
+                <div class="small muted">{{ interview.Company_Name }}</div>
+              </td>
+              <td class="small">
+                <strong>{{ interview.Round_Name }}</strong>
+              </td>
+              <td class="small nowrap">{{ interview.Interview_Date|dmy }}</td>
+              <td class="small">{{ interview.Interviewer_Name }}</td>
+              <td class="small">{{ interview.Marks_Obtained if interview.Marks_Obtained is not none else '—' }}</td>
+              <td>{{ badge(interview.Result) }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty('camera-video', 'No interviews found', 'Recruiters schedule interviews from the applicant list.') }}
+  {% endif %}
+</div>
+{% endblock %}

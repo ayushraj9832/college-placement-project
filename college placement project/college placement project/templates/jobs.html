@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Available jobs{% endblock %}
+
+{% block content %}
+<section class="section tight" style="background:#fff;border-bottom:1px solid var(--line);">
+  <div class="container">
+    <div class="page-head" style="margin-bottom:0;">
+      <div>
+        <span class="kicker">Open opportunities</span>
+        <h1>Available jobs</h1>
+        <p>{{ jobs|length }} open role{{ '' if jobs|length == 1 else 's' }} from approved companies.</p>
+      </div>
+      <a class="btn btn-outline" href="{{ url_for('student_login') }}">
+        <i class="bi bi-box-arrow-in-right"></i> Student login
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <form class="filters" method="get" action="{{ url_for('public_jobs') }}">
+      <div class="field grow">
+        <label for="q">Search</label>
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input id="q" type="text" name="q" value="{{ q }}" placeholder="Role, company or location">
+        </div>
+      </div>
+      <div class="field">
+        <label for="branch">Branch</label>
+        <select id="branch" name="branch">
+          <option value="">All branches</option>
+          {% for b in BRANCHES %}
+            <option value="{{ b }}" {% if branch == b %}selected{% endif %}>{{ b }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field">
+        <label for="job_type">Job type</label>
+        <select id="job_type" name="job_type">
+          <option value="">All types</option>
+          {% for t in JOB_TYPES %}
+            <option value="{{ t }}" {% if job_type == t %}selected{% endif %}>{{ t }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary" type="submit">Filter</button>
+        {% if q or branch or job_type %}
+          <a class="btn btn-ghost" href="{{ url_for('public_jobs') }}">Clear</a>
+        {% endif %}
+      </div>
+    </form>
+
+    {% if jobs %}
+      <div class="job-grid">
+        {% for job in jobs %}
+          <article class="job-card">
+            <div class="job-top">
+              <div class="company-logo">{{ job.Company_Name[:1] }}</div>
+              <div style="flex:1;">
+                <div class="job-company">{{ job.Company_Name }}</div>
+                <h3 class="job-title">{{ job.Job_Title }}</h3>
+              </div>
+              <span class="badge badge-info">{{ job.Job_Type }}</span>
+            </div>
+            <p class="job-desc">{{ job.Job_Description }}</p>
+            <div class="job-meta">
+              <span><i class="bi bi-geo-alt"></i> {{ job.Job_Location }}</span>
+              <span><i class="bi bi-cash-stack"></i> {{ job.Salary_Package|money }} LPA</span>
+              <span><i class="bi bi-mortarboard"></i> {{ job.Eligible_Branch }}</span>
+              <span><i class="bi bi-graph-up"></i> Min {{ job.Min_CGPA }} CGPA</span>
+            </div>
+            <div class="job-foot">
+              <div>
+                <div class="small muted">Apply by</div>
+                <strong class="small">{{ job.Application_Deadline|dmy }}</strong>
+              </div>
+              <div class="flex gap-1" style="align-items:center;">
+                <span class="small muted">{{ job.Application_Count }} applied</span>
+                <a class="btn btn-primary btn-sm" href="{{ url_for('student_login') }}">Login to apply</a>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card"><div class="empty">
+        <i class="bi bi-briefcase"></i>
+        <strong>No jobs match your filters</strong>
+        <p>Try clearing the filters or check back soon for new openings.</p>
+      </div></div>
+    {% endif %}
+
+    <div class="notice info mt-3">
+      <i class="bi bi-info-circle-fill"></i>
+      <div>
+        Eligibility (minimum CGPA and allowed branches) is checked automatically after
+        you log in. Closed roles are removed from this public list at midnight on the deadline.
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

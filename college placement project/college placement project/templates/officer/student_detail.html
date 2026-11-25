@@ -1,0 +1,146 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}{{ student.Name }}{% endblock %}
+{% block page_title %}Student record{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="small" href="{{ url_for('officer_students') }}"><i class="bi bi-arrow-left"></i> All students</a>
+    <h1 class="mt-1">{{ student.Name }}</h1>
+    <p>{{ student.Branch }} · Batch {{ student.Batch_Year }} · CGPA {{ student.CGPA }}</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-outline" href="{{ url_for('officer_student_edit', student_id=student.Student_ID) }}">
+      <i class="bi bi-pencil"></i> Edit record
+    </a>
+    <form method="post" action="{{ url_for('officer_student_delete', student_id=student.Student_ID) }}">
+      <button class="btn btn-danger" type="submit"
+              data-confirm="Delete this student and ALL related applications, interviews and placements? This cannot be undone.">
+        <i class="bi bi-trash"></i> Delete
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="dash-grid">
+  <div>
+    <div class="card">
+      <div class="card-head"><h3>Applications</h3></div>
+      {% if applications %}
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Company &amp; role</th><th>Applied</th><th>Status</th></tr></thead>
+            <tbody>
+              {% for app in applications %}
+                <tr>
+                  <td>
+                    <strong class="small">{{ app.Job_Title }}</strong>
+                    <div class="small muted">{{ app.Company_Name }}</div>
+                  </td>
+                  <td class="small nowrap">{{ app.Application_Date|dmy }}</td>
+                  <td>{{ badge(app.Status) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        {{ empty('file-earmark-text', 'No applications', 'This student has not applied to any job yet.') }}
+      {% endif %}
+    </div>
+
+    <div class="card mt-2">
+      <div class="card-head"><h3>Interviews</h3></div>
+      {% if interviews %}
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Round</th><th>Company</th><th>Date</th><th>Marks</th><th>Result</th></tr></thead>
+            <tbody>
+              {% for interview in interviews %}
+                <tr>
+                  <td><strong class="small">{{ interview.Round_Name }}</strong><div class="small muted">{{ interview.Job_Title }}</div></td>
+                  <td class="small">{{ interview.Company_Name }}</td>
+                  <td class="small nowrap">{{ interview.Interview_Date|dmy }}</td>
+                  <td class="small">{{ interview.Marks_Obtained if interview.Marks_Obtained is not none else '—' }}</td>
+                  <td>{{ badge(interview.Result) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        {{ empty('camera-video', 'No interviews', 'Interview records appear here once scheduled.') }}
+      {% endif %}
+    </div>
+
+    <div class="card mt-2">
+      <div class="card-head"><h3>Placements</h3></div>
+      {% if placements %}
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Company &amp; role</th><th>Package</th><th>Joining</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {% for placement in placements %}
+                <tr>
+                  <td>
+                    <strong class="small">{{ placement.Company_Name }}</strong>
+                    <div class="small muted">{{ placement.Job_Title }}</div>
+                  </td>
+                  <td class="small">{{ placement.Package_Offered|money }} LPA</td>
+                  <td class="small nowrap">{{ placement.Joining_Date|dmy }}</td>
+                  <td>{{ badge(placement.Status) }}</td>
+                  <td>
+                    <form method="post" action="{{ url_for('officer_placement_delete', placement_id=placement.Placement_ID) }}">
+                      <button class="btn btn-danger btn-sm" type="submit"
+                              data-confirm="Delete this placement record?"><i class="bi bi-trash"></i></button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        {{ empty('award', 'Not placed yet', 'No offer has been recorded for this student.') }}
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-body">
+        <div class="profile-head">
+          <div class="avatar-lg">{{ student.Name[:1]|upper }}</div>
+          <div>
+            <h3 style="font-size:1.05rem;">{{ student.Name }}</h3>
+            <p class="small muted">Student #{{ student.Student_ID }}</p>
+            <span class="badge badge-info mt-1">CGPA {{ student.CGPA }}</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="kv">
+          <div><span>Email</span><strong>{{ student.Email }}</strong></div>
+          <div><span>Phone</span><strong>{{ student.Phone }}</strong></div>
+          <div><span>Gender</span><strong>{{ student.Gender }}</strong></div>
+          <div><span>Date of birth</span><strong>{{ student.Date_of_Birth|dmy }}</strong></div>
+          <div><span>Branch</span><strong>{{ student.Branch }}</strong></div>
+          <div><span>Batch year</span><strong>{{ student.Batch_Year }}</strong></div>
+          <div><span>Address</span><strong>{{ student.Address or '—' }}</strong></div>
+          <div><span>Registered on</span><strong>{{ student.Created_At|dmy }}</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-2">
+      <div class="card-head"><h3>Eligibility note</h3></div>
+      <div class="card-body">
+        <p class="small muted">
+          A job's eligibility is evaluated live from this record's CGPA and branch. Editing
+          the CGPA changes which jobs the student can apply for immediately.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

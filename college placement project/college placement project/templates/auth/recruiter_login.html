@@ -1,0 +1,38 @@
+{% extends "auth/auth_base.html" %}
+{% block title %}Recruiter login{% endblock %}
+{% block portal_name %}Recruiter portal{% endblock %}
+{% block form_title %}Recruiter login{% endblock %}
+{% block form_subtitle %}Use the HR email registered with your company account.{% endblock %}
+{% block side_title %}Hire campus-ready talent, faster.{% endblock %}
+{% block side_text %}Publish roles, define eligibility once, shortlist applicants and move them through rounds without email chains.{% endblock %}
+
+{% block form %}
+<form method="post" action="{{ url_for('recruiter_login') }}" class="grid" style="gap:14px;">
+  <div class="field">
+    <label for="email">HR email</label>
+    <input id="email" type="email" name="email" required autocomplete="email"
+           placeholder="hr@company.com" value="{{ request.form.get('email', '') }}">
+  </div>
+  <div class="field">
+    <label for="password">Password</label>
+    <input id="password" type="password" name="password" required autocomplete="current-password"
+           placeholder="Enter your password">
+  </div>
+  <button class="btn btn-primary btn-block" type="submit">
+    <i class="bi bi-box-arrow-in-right"></i> Log in
+  </button>
+</form>
+
+<div class="demo-note">
+  <strong>Demo recruiter:</strong> <code>hr@technova.example.com</code> / <code>Recruiter@123</code><br>
+  New company accounts require placement-cell approval before login.
+</div>
+{% endblock %}
+
+{% block alt %}
+  New company? <a href="{{ url_for('recruiter_register') }}">Register your company</a>
+  <div class="small mt-2">
+    Student? <a href="{{ url_for('student_login') }}">Student login</a> ·
+    Officer? <a href="{{ url_for('officer_login') }}">Officer login</a>
+  </div>
+{% endblock %}

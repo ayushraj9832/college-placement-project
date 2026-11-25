@@ -1,0 +1,92 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge %}
+{% block title %}Release offer{% endblock %}
+{% block page_title %}Release offer{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="small" href="{{ url_for('recruiter_applicants', job_id=application.Job_ID) }}"><i class="bi bi-arrow-left"></i> Back to applicants</a>
+    <h1 class="mt-1">Release an offer</h1>
+    <p>{{ application.Student_Name }} · {{ application.Job_Title }}</p>
+  </div>
+  {{ badge(application.Status) }}
+</div>
+
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head"><h3>Offer details</h3></div>
+    <div class="card-body">
+      {% if existing %}
+        <div class="notice danger">
+          <i class="bi bi-exclamation-octagon-fill"></i>
+          <div>
+            An offer already exists for this student and job. The unique constraint on
+            <code>(Student_ID, Job_ID)</code> prevents duplicates.
+          </div>
+        </div>
+        <a class="btn btn-outline mt-2" href="{{ url_for('recruiter_placements') }}">View your offers</a>
+      {% else %}
+        <form method="post" action="{{ url_for('recruiter_offer_new', application_id=application.Application_ID) }}">
+          <div class="form-grid">
+            <div class="field">
+              <label for="package_offered">Package offered (LPA) <span class="req">*</span></label>
+              <input id="package_offered" type="number" name="package_offered" min="0" step="0.01" required
+                     value="{{ application.Salary_Package }}">
+              <span class="hint">Defaults to the advertised package. You may revise it.</span>
+            </div>
+            <div class="field">
+              <label for="joining_date">Joining date</label>
+              <input id="joining_date" type="date" name="joining_date">
+              <span class="hint">Optional, but must be today or later.</span>
+            </div>
+            <div class="field">
+              <label for="status">Offer status <span class="req">*</span></label>
+              <select id="status" name="status" required>
+                {% for s in PLACEMENT_STATUSES %}
+                  <option value="{{ s }}" {% if s == 'Offer Released' %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field">
+              <label>Placement date</label>
+              <input type="text" value="{{ today|dmy }}" readonly>
+              <span class="hint">Set automatically to today.</span>
+            </div>
+          </div>
+          <div class="form-actions">
+            <a class="btn btn-ghost" href="{{ url_for('recruiter_applicants', job_id=application.Job_ID) }}">Cancel</a>
+            <button class="btn btn-primary" type="submit"><i class="bi bi-award-fill"></i> Create offer</button>
+          </div>
+        </form>
+        <div class="notice info mt-2">
+          <i class="bi bi-info-circle-fill"></i>
+          <div>
+            Creating the offer inserts a <code>Placement</code> row and updates this
+            application to <strong>Selected</strong> in one transaction.
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="profile-head">
+        <div class="avatar-lg">{{ application.Student_Name[:1] }}</div>
+        <div>
+          <h3 style="font-size:1.05rem;">{{ application.Student_Name }}</h3>
+          <p class="small muted">{{ application.Branch }} · CGPA {{ application.CGPA }}</p>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="kv">
+        <div><span>Job</span><strong>{{ application.Job_Title }}</strong></div>
+        <div><span>Company</span><strong>{{ application.Company_Name }}</strong></div>
+        <div><span>Advertised package</span><strong>{{ application.Salary_Package|money }} LPA</strong></div>
+        <div><span>Application date</span><strong>{{ application.Application_Date|dmy }}</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

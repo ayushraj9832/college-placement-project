@@ -1,0 +1,73 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}Interviews{% endblock %}
+{% block page_title %}Interview schedule{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Interviews</h1>
+    <p>Monitor scheduled interviews and record results for your company.</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-outline {{ 'active' if when == 'all' }}" href="{{ url_for('recruiter_interviews', when='all') }}">All</a>
+    <a class="btn btn-outline" href="{{ url_for('recruiter_interviews', when='upcoming') }}">Upcoming</a>
+    <a class="btn btn-outline" href="{{ url_for('recruiter_interviews', when='past') }}">Completed</a>
+  </div>
+</div>
+
+<div class="card">
+  {% if interviews %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>Student</th><th>Job</th><th>Round</th><th>Date &amp; time</th><th>Interviewer</th><th>Result</th><th>Marks</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for interview in interviews %}
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="avatar-sm">{{ interview.Student_Name[:1] }}</span>
+                  <div><strong>{{ interview.Student_Name }}</strong><span>{{ interview.Branch }}</span></div>
+                </div>
+              </td>
+              <td class="small">{{ interview.Job_Title }}</td>
+              <td class="small">
+                <strong>{{ interview.Round_Name }}</strong>
+                <div class="muted">{{ interview.Round_Type }}</div>
+              </td>
+              <td class="small nowrap">{{ interview.Interview_Date|dmy }}</td>
+              <td class="small">{{ interview.Interviewer_Name }}</td>
+              <td>{{ badge(interview.Result) }}</td>
+              <td class="small">{{ interview.Marks_Obtained if interview.Marks_Obtained is not none else '—' }} / {{ interview.Max_Marks }}</td>
+              <td>
+                <form method="post" action="{{ url_for('recruiter_interview_result', interview_id=interview.Interview_ID) }}" class="table-actions">
+                  <select name="result" class="mini-select" aria-label="Interview result">
+                    {% for r in INTERVIEW_RESULTS %}
+                      <option value="{{ r }}" {% if interview.Result == r %}selected{% endif %}>{{ r }}</option>
+                    {% endfor %}
+                  </select>
+                  <input class="mini-input" type="number" name="marks_obtained" min="0" max="{{ interview.Max_Marks }}" step="0.01"
+                         value="{{ interview.Marks_Obtained if interview.Marks_Obtained is not none else '' }}" placeholder="Marks" aria-label="Marks">
+                  <button class="btn btn-outline btn-sm" type="submit">Save</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty('camera-video', 'No interviews found', 'Schedule interviews from a job applicant list.') }}
+  {% endif %}
+</div>
+
+<div class="notice info mt-2">
+  <i class="bi bi-info-circle-fill"></i>
+  <div>
+    Updating a result to <strong>Pass</strong> does not automatically select the candidate.
+    Use the offer form to create the final placement record when the candidate clears all rounds.
+  </div>
+</div>
+{% endblock %}

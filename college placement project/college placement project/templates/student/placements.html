@@ -1,0 +1,91 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}My placement{% endblock %}
+{% block page_title %}My placement{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Placement &amp; offers</h1>
+    <p>Final offers released to you. A student may hold offers from more than one company.</p>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('student_applications') }}"><i class="bi bi-file-earmark-text"></i> Application history</a>
+</div>
+
+{% if placements %}
+  {% set accepted = placements|selectattr('Status', 'in', ['Offer Accepted', 'Joined'])|list %}
+  {% if accepted %}
+    <div class="offer-banner mb-2">
+      <div class="ico"><i class="bi bi-patch-check-fill"></i></div>
+      <div>
+        <strong>You are placed at {{ accepted[0].Company_Name }}</strong>
+        <span>{{ accepted[0].Job_Title }} · {{ accepted[0].Package_Offered|money }} LPA · joining {{ accepted[0].Joining_Date|dmy }}</span>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="grid-2">
+    {% for placement in placements %}
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h3>{{ placement.Company_Name }}</h3>
+            <p>{{ placement.Job_Title }}</p>
+          </div>
+          {{ badge(placement.Status) }}
+        </div>
+        <div class="card-body">
+          <div class="kv">
+            <div><span>Package offered</span><strong>{{ placement.Package_Offered|money }} LPA</strong></div>
+            <div><span>Job type</span><strong>{{ placement.Job_Type }}</strong></div>
+            <div><span>Placement date</span><strong>{{ placement.Placement_Date|dmy }}</strong></div>
+            <div><span>Joining date</span><strong>{{ placement.Joining_Date|dmy }}</strong></div>
+            <div><span>Company location</span><strong>{{ placement.Company_Location }}</strong></div>
+            <div><span>Offer status</span><strong>{{ placement.Status }}</strong></div>
+          </div>
+          {% if placement.Status == 'Offer Released' %}
+            <div class="notice mt-2">
+              <i class="bi bi-envelope-paper-fill"></i>
+              <div>Your offer has been released. Accept or decline it below; the placement cell sees your response immediately.</div>
+            </div>
+            <form method="post" action="{{ url_for('student_placement_status', placement_id=placement.Placement_ID) }}" class="table-actions mt-2">
+              <button class="btn btn-success btn-sm" type="submit" name="status" value="Offer Accepted">
+                <i class="bi bi-check2-circle"></i> Accept offer
+              </button>
+              <button class="btn btn-danger btn-sm" type="submit" name="status" value="Offer Declined"
+                      data-confirm="Decline this offer? Your other applications remain unaffected.">
+                <i class="bi bi-x-circle"></i> Decline
+              </button>
+            </form>
+          {% elif placement.Status == 'Offer Declined' %}
+            <div class="notice danger mt-2">
+              <i class="bi bi-x-circle-fill"></i>
+              <div>This offer was declined. Your other active applications remain unaffected.</div>
+            </div>
+          {% elif placement.Status == 'Joined' %}
+            <div class="notice info mt-2">
+              <i class="bi bi-building-check"></i>
+              <div>Joining confirmed. Congratulations!</div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card">
+    {{ empty('award', 'No offers yet', 'Keep applying and preparing for interviews. Your offers will appear here.') }}
+  </div>
+  <div class="card mt-2">
+    <div class="card-body">
+      <div class="notice info">
+        <i class="bi bi-lightbulb-fill"></i>
+        <div>
+          A placement record is created only after a company selects you and releases an offer.
+          Check <a href="{{ url_for('student_interviews') }}">your interviews</a> for upcoming rounds.
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

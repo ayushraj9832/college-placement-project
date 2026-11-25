@@ -1,0 +1,120 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}Schedule interview{% endblock %}
+{% block page_title %}Schedule interview{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="small" href="{{ url_for('recruiter_applicants', job_id=application.Job_ID) }}"><i class="bi bi-arrow-left"></i> Back to applicants</a>
+    <h1 class="mt-1">Schedule an interview</h1>
+    <p>{{ application.Student_Name }} · {{ application.Job_Title }} · {{ application.Company_Name }}</p>
+  </div>
+  <div>{{ badge(application.Status) }}</div>
+</div>
+
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head"><h3>Interview details</h3></div>
+    <div class="card-body">
+      {% if rounds %}
+        <form method="post" action="{{ url_for('recruiter_interview_new', application_id=application.Application_ID) }}">
+          <div class="form-grid">
+            <div class="field span-2">
+              <label for="round_id">Recruitment round <span class="req">*</span></label>
+              <select id="round_id" name="round_id" required>
+                <option value="">Select a round</option>
+                {% for round in rounds %}
+                  <option value="{{ round.Round_ID }}">
+                    {{ round.Round_Name }} · {{ round.Round_Type }} · max {{ round.Max_Marks }} · {{ round.Round_Date|dmy }}
+                  </option>
+                {% endfor %}
+              </select>
+              <span class="hint">Only rounds without an existing interview for this applicant are shown.</span>
+            </div>
+            <div class="field">
+              <label for="interview_date">Date and time <span class="req">*</span></label>
+              <input id="interview_date" type="datetime-local" name="interview_date" required>
+            </div>
+            <div class="field">
+              <label for="interviewer_name">Interviewer name <span class="req">*</span></label>
+              <input id="interviewer_name" type="text" name="interviewer_name" required maxlength="100" placeholder="Panel member">
+            </div>
+            <div class="field">
+              <label for="result">Result</label>
+              <select id="result" name="result">
+                {% for r in INTERVIEW_RESULTS %}
+                  <option value="{{ r }}" {% if r == 'Pending' %}selected{% endif %}>{{ r }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="field">
+              <label for="marks_obtained">Marks obtained</label>
+              <input id="marks_obtained" type="number" name="marks_obtained" min="0" step="0.01" placeholder="Leave blank if not evaluated">
+              <span class="hint">Cannot exceed the selected round's maximum marks.</span>
+            </div>
+            <div class="field span-2">
+              <label for="remarks">Remarks</label>
+              <textarea id="remarks" name="remarks" maxlength="255" rows="3" placeholder="Panel feedback or rescheduling note"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <a class="btn btn-ghost" href="{{ url_for('recruiter_applicants', job_id=application.Job_ID) }}">Cancel</a>
+            <button class="btn btn-primary" type="submit"><i class="bi bi-calendar-plus"></i> Schedule interview</button>
+          </div>
+        </form>
+      {% else %}
+        <div class="notice">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          <div>
+            There are no available rounds for this applicant. Either every round already has
+            an interview, or no rounds have been created for this job.
+          </div>
+        </div>
+        <a class="btn btn-outline mt-2" href="{{ url_for('recruiter_rounds', job_id=application.Job_ID) }}">Manage recruitment rounds</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-body">
+        <div class="profile-head">
+          <div class="avatar-lg">{{ application.Student_Name[:1] }}</div>
+          <div>
+            <h3 style="font-size:1.05rem;">{{ application.Student_Name }}</h3>
+            <p class="small muted">{{ application.Branch }} · CGPA {{ application.CGPA }}</p>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="kv">
+          <div><span>Job</span><strong>{{ application.Job_Title }}</strong></div>
+          <div><span>Company</span><strong>{{ application.Company_Name }}</strong></div>
+          <div><span>Applied on</span><strong>{{ application.Application_Date|dmy }}</strong></div>
+          <div><span>Application ID</span><strong>#{{ application.Application_ID }}</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-2">
+      <div class="card-head"><h3>Already scheduled</h3></div>
+      <div class="card-body tight">
+        {% if existing %}
+          {% for interview in existing %}
+            <div class="round-item">
+              <div class="round-num"><i class="bi bi-camera-video"></i></div>
+              <div style="flex:1;">
+                <strong>{{ interview.Round_Name }}</strong>
+                <span>{{ interview.Interview_Date|dmy }} · {{ interview.Interviewer_Name }}</span>
+              </div>
+              {{ badge(interview.Result) }}
+            </div>
+          {% endfor %}
+        {% else %}
+          {{ empty('calendar', 'Nothing scheduled yet', 'The first interview will appear here.') }}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

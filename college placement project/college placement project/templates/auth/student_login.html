@@ -1,0 +1,38 @@
+{% extends "auth/auth_base.html" %}
+{% block title %}Student login{% endblock %}
+{% block portal_name %}Student portal{% endblock %}
+{% block form_title %}Welcome back{% endblock %}
+{% block form_subtitle %}Log in with the email address you registered with.{% endblock %}
+{% block side_title %}Find your first opportunity with confidence.{% endblock %}
+{% block side_text %}See exactly which companies you are eligible for, apply in one click and follow every round until the offer letter.{% endblock %}
+
+{% block form %}
+<form method="post" action="{{ url_for('student_login') }}" class="grid" style="gap:14px;">
+  <div class="field">
+    <label for="email">College email</label>
+    <input id="email" type="email" name="email" required autocomplete="email"
+           placeholder="you@college.edu" value="{{ request.form.get('email', '') }}">
+  </div>
+  <div class="field">
+    <label for="password">Password</label>
+    <input id="password" type="password" name="password" required autocomplete="current-password"
+           placeholder="Enter your password">
+  </div>
+  <button class="btn btn-primary btn-block" type="submit">
+    <i class="bi bi-box-arrow-in-right"></i> Log in
+  </button>
+</form>
+
+<div class="demo-note">
+  <strong>Demo student:</strong> <code>aarav.sharma@college.edu</code> / <code>Student@123</code>
+</div>
+{% endblock %}
+
+{% block alt %}
+  New student? <a href="{{ url_for('student_register') }}">Create an account</a>
+  <div class="small mt-2">
+    Recruiter? <a href="{{ url_for('recruiter_login') }}">Recruiter login</a> ·
+    Officer? <a href="{{ url_for('officer_login') }}">Officer login</a> ·
+    Admin? <a href="{{ url_for('admin_login') }}">Administrator login</a>
+  </div>
+{% endblock %}

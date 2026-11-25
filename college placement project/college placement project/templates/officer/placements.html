@@ -1,0 +1,110 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}Placements{% endblock %}
+{% block page_title %}Placements{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Placement records</h1>
+    <p>Final offers and confirmed placements across all companies.</p>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('officer_reports') }}"><i class="bi bi-file-earmark-bar-graph"></i> Reports</a>
+</div>
+
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head"><h3>All placements</h3></div>
+    {% if placements %}
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr><th>Student</th><th>Company &amp; role</th><th>Package</th><th>Placement</th><th>Joining</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for placement in placements %}
+              <tr>
+                <td>
+                  <div class="person">
+                    <span class="avatar-sm">{{ placement.Student_Name[:1] }}</span>
+                    <div><strong>{{ placement.Student_Name }}</strong><span>{{ placement.Branch }} · CGPA {{ placement.CGPA }}</span></div>
+                  </div>
+                </td>
+                <td>
+                  <strong class="small">{{ placement.Company_Name }}</strong>
+                  <div class="small muted">{{ placement.Job_Title }}</div>
+                </td>
+                <td class="small"><strong>{{ placement.Package_Offered|money }}</strong> LPA</td>
+                <td class="small nowrap">{{ placement.Placement_Date|dmy }}</td>
+                <td class="small nowrap">{{ placement.Joining_Date|dmy }}</td>
+                <td>{{ badge(placement.Status) }}</td>
+                <td>
+                  <form method="post" action="{{ url_for('officer_placement_delete', placement_id=placement.Placement_ID) }}">
+                    <button class="btn btn-danger btn-sm" type="submit"
+                            data-confirm="Delete this placement record?"><i class="bi bi-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {{ empty('award', 'No placements recorded', 'Offers appear here after recruiters release them.') }}
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Add a placement</h3></div>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('officer_placements') }}">
+        <div class="grid" style="gap:14px;">
+          <div class="field">
+            <label for="student_id">Student <span class="req">*</span></label>
+            <select id="student_id" name="student_id" required>
+              <option value="">Select a student</option>
+              {% for student in students %}
+                <option value="{{ student.Student_ID }}">{{ student.Name }} — {{ student.Branch }} ({{ student.CGPA }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="job_id">Job <span class="req">*</span></label>
+            <select id="job_id" name="job_id" required>
+              <option value="">Select a job</option>
+              {% for job in jobs %}
+                <option value="{{ job.Job_ID }}">{{ job.Company_Name }} — {{ job.Job_Title }} ({{ job.Salary_Package|money }} LPA)</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="package_offered">Package (LPA) <span class="req">*</span></label>
+            <input id="package_offered" type="number" name="package_offered" min="0" step="0.01" required placeholder="e.g. 6.50">
+          </div>
+          <div class="field">
+            <label for="joining_date">Joining date</label>
+            <input id="joining_date" type="date" name="joining_date">
+          </div>
+          <div class="field">
+            <label for="status">Status <span class="req">*</span></label>
+            <select id="status" name="status" required>
+              {% for s in PLACEMENT_STATUSES %}
+                <option value="{{ s }}" {% if s == 'Offer Released' %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit"><i class="bi bi-plus-lg"></i> Create placement</button>
+        </div>
+      </form>
+      <div class="divider"></div>
+      <div class="notice info">
+        <i class="bi bi-info-circle-fill"></i>
+        <div>
+          Creating a placement also marks the matching application as <strong>Selected</strong>
+          inside the same transaction.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

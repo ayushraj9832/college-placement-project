@@ -1,0 +1,90 @@
+{% extends "dashboard_base.html" %}
+{% block title %}{{ 'Edit job' if job else 'Post a job' }}{% endblock %}
+{% block page_title %}{{ 'Edit job opening' if job else 'Post a job opening' }}{% endblock %}
+
+{% block content %}
+{% set posted = request.method == 'POST' %}
+{% set title = request.form.get('job_title') if posted else (job.Job_Title if job else '') %}
+{% set description = request.form.get('job_description') if posted else (job.Job_Description if job else '') %}
+{% set eligible = request.form.get('eligible_branch') if posted else (job.Eligible_Branch if job else 'All') %}
+{% set min_cgpa = request.form.get('min_cgpa') if posted else (job.Min_CGPA if job else '') %}
+{% set salary = request.form.get('salary_package') if posted else (job.Salary_Package if job else '') %}
+{% set location = request.form.get('job_location') if posted else (job.Job_Location if job else '') %}
+{% set deadline = request.form.get('application_deadline') if posted else (job.Application_Deadline if job else '') %}
+{% set jtype = request.form.get('job_type') if posted else (job.Job_Type if job else 'Full-Time') %}
+
+<div class="page-head">
+  <div>
+    <h1>{{ 'Edit job opening' if job else 'Post a new job' }}</h1>
+    <p>{{ 'Update the role details and eligibility criteria.' if job else 'Students will see this role immediately after publishing.' }}</p>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('recruiter_jobs') }}"><i class="bi bi-arrow-left"></i> Back to jobs</a>
+</div>
+
+<div class="card" style="max-width:900px;">
+  <div class="card-head"><h3>Role details</h3></div>
+  <div class="card-body">
+    <form method="post" action="{{ url_for('recruiter_job_edit', job_id=job.Job_ID) if job else url_for('recruiter_job_new') }}">
+      <div class="form-grid">
+        <div class="field span-2">
+          <label for="job_title">Job title <span class="req">*</span></label>
+          <input id="job_title" type="text" name="job_title" required maxlength="120" value="{{ title }}"
+                 placeholder="e.g. Software Engineer Trainee">
+        </div>
+        <div class="field span-2">
+          <label for="job_description">Job description <span class="req">*</span></label>
+          <textarea id="job_description" name="job_description" required rows="5"
+                    placeholder="Responsibilities, skills expected and training details.">{{ description }}</textarea>
+        </div>
+        <div class="field">
+          <label for="job_type">Job type <span class="req">*</span></label>
+          <select id="job_type" name="job_type" required>
+            {% for t in JOB_TYPES %}
+              <option value="{{ t }}" {% if jtype == t %}selected{% endif %}>{{ t }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="job_location">Job location <span class="req">*</span></label>
+          <input id="job_location" type="text" name="job_location" required maxlength="100" value="{{ location }}" placeholder="City">
+        </div>
+        <div class="field">
+          <label for="eligible_branch">Eligible branches <span class="req">*</span></label>
+          <input id="eligible_branch" type="text" name="eligible_branch" required maxlength="150" value="{{ eligible }}"
+                 placeholder="MCA,CSE,IT or All">
+          <span class="hint">Comma-separated, no spaces. Use <strong>All</strong> for every branch.</span>
+        </div>
+        <div class="field">
+          <label for="min_cgpa">Minimum CGPA <span class="req">*</span></label>
+          <input id="min_cgpa" type="number" name="min_cgpa" min="0" max="10" step="0.01" required value="{{ min_cgpa }}" placeholder="e.g. 7.00">
+        </div>
+        <div class="field">
+          <label for="salary_package">Salary package (LPA) <span class="req">*</span></label>
+          <input id="salary_package" type="number" name="salary_package" min="0" step="0.01" required value="{{ salary }}" placeholder="e.g. 6.50">
+          <span class="hint">Enter the annual CTC in lakhs per annum.</span>
+        </div>
+        <div class="field">
+          <label for="application_deadline">Application deadline <span class="req">*</span></label>
+          <input id="application_deadline" type="date" name="application_deadline" required value="{{ deadline }}">
+          {% if job %}<span class="hint">You can still edit a closed job, but students cannot apply.</span>{% endif %}
+        </div>
+      </div>
+      <div class="form-actions">
+        <a class="btn btn-ghost" href="{{ url_for('recruiter_jobs') }}">Cancel</a>
+        <button class="btn btn-primary" type="submit">
+          <i class="bi bi-{{ 'check2-circle' if job else 'send-fill' }}"></i>
+          {{ 'Save changes' if job else 'Publish job' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="notice info mt-2" style="max-width:900px;">
+  <i class="bi bi-lightbulb-fill"></i>
+  <div>
+    The minimum CGPA and branch list are enforced by the application, and the database
+    also protects the deadline with a trigger when the advanced SQL file is installed.
+  </div>
+</div>
+{% endblock %}

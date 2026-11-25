@@ -1,0 +1,94 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}Companies{% endblock %}
+{% block page_title %}Companies{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Company accounts</h1>
+    <p>Approve recruiters, review participation and monitor selection outcomes.</p>
+  </div>
+</div>
+
+<form class="filters" method="get" action="{{ url_for('officer_companies') }}">
+  <div class="field grow">
+    <label for="q">Search</label>
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input id="q" type="text" name="q" value="{{ q }}" placeholder="Company, industry or city">
+    </div>
+  </div>
+  <div class="field">
+    <label for="status">Approval status</label>
+    <select id="status" name="status">
+      <option value="">All statuses</option>
+      {% for s in ['Pending', 'Approved', 'Rejected'] %}
+        <option value="{{ s }}" {% if status == s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="filter-actions">
+    <button class="btn btn-primary" type="submit">Filter</button>
+    {% if q or status %}<a class="btn btn-ghost" href="{{ url_for('officer_companies') }}">Clear</a>{% endif %}
+  </div>
+</form>
+
+<div class="card">
+  {% if companies %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Industry</th>
+            <th>Jobs</th>
+            <th>Applications</th>
+            <th>Selections</th>
+            <th>Approval</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for company in companies %}
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="avatar-sm">{{ company.Company_Name[:1] }}</span>
+                  <div>
+                    <strong>{{ company.Company_Name }}</strong>
+                    <span>{{ company.Location }} · {{ company.HR_Email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="small">{{ company.Industry }}</td>
+              <td>{{ company.Jobs }}</td>
+              <td>{{ company.Applications }}</td>
+              <td><strong>{{ company.Selections }}</strong></td>
+              <td>{{ badge(company.Approval_Status) }}</td>
+              <td>
+                <div class="table-actions">
+                  <a class="btn btn-outline btn-sm" href="{{ url_for('officer_company_detail', company_id=company.Company_ID) }}">View</a>
+                  {% if company.Approval_Status != 'Approved' %}
+                    <form method="post" action="{{ url_for('officer_company_status', company_id=company.Company_ID, status='Approved') }}">
+                      <button class="btn btn-success btn-sm" type="submit">Approve</button>
+                    </form>
+                  {% endif %}
+                  {% if company.Approval_Status != 'Rejected' %}
+                    <form method="post" action="{{ url_for('officer_company_status', company_id=company.Company_ID, status='Rejected') }}">
+                      <button class="btn btn-danger btn-sm" type="submit"
+                              data-confirm="Reject this company? They will not be able to log in.">Reject</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty('buildings', 'No companies found', 'Try a different search or status filter.') }}
+  {% endif %}
+</div>
+{% endblock %}

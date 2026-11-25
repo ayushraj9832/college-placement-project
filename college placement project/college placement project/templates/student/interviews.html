@@ -1,0 +1,75 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}My interviews{% endblock %}
+{% block page_title %}My interviews{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Interview schedule</h1>
+    <p>Upcoming interviews and the results of completed rounds.</p>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('student_applications') }}"><i class="bi bi-file-earmark-text"></i> Applications</a>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div><h3>Upcoming</h3><p>{{ upcoming|length }} interview{{ '' if upcoming|length == 1 else 's' }} scheduled.</p></div>
+  </div>
+  {% if upcoming %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Company &amp; role</th><th>Round</th><th>Date &amp; time</th><th>Interviewer</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for interview in upcoming %}
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="avatar-sm">{{ interview.Company_Name[:1] }}</span>
+                  <div><strong>{{ interview.Job_Title }}</strong><span>{{ interview.Company_Name }}</span></div>
+                </div>
+              </td>
+              <td><strong class="small">{{ interview.Round_Name }}</strong><div class="small muted">{{ interview.Round_Type }}</div></td>
+              <td class="small nowrap">{{ interview.Interview_Date|dmy }}</td>
+              <td class="small">{{ interview.Interviewer_Name }}</td>
+              <td>{{ badge(interview.Result) }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty('calendar-check', 'No upcoming interviews', 'When a recruiter schedules a round, the date appears here.') }}
+  {% endif %}
+</div>
+
+<div class="card mt-2">
+  <div class="card-head"><div><h3>Completed interviews</h3><p>Results and marks from earlier rounds.</p></div></div>
+  {% if past %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Company &amp; role</th><th>Round</th><th>Date</th><th>Marks</th><th>Result</th><th>Remarks</th></tr></thead>
+        <tbody>
+          {% for interview in past %}
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="avatar-sm">{{ interview.Company_Name[:1] }}</span>
+                  <div><strong>{{ interview.Job_Title }}</strong><span>{{ interview.Company_Name }}</span></div>
+                </div>
+              </td>
+              <td class="small">{{ interview.Round_Name }}</td>
+              <td class="small nowrap">{{ interview.Interview_Date|dmy }}</td>
+              <td class="small">{{ interview.Marks_Obtained if interview.Marks_Obtained is not none else '—' }} / {{ interview.Max_Marks }}</td>
+              <td>{{ badge(interview.Result) }}</td>
+              <td class="small muted">{{ interview.Remarks or '—' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty('hourglass-split', 'No completed interviews yet', 'Results will appear here after each round.') }}
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}About the placement cell{% endblock %}
+
+{% block content %}
+<section class="section tight" style="background:#fff;border-bottom:1px solid var(--line);">
+  <div class="container">
+    <span class="kicker">About PlaceHub</span>
+    <h1 style="font-size:clamp(1.9rem,3.6vw,2.8rem);letter-spacing:-.03em;margin:8px 0 12px;">
+      A single source of truth for campus recruitment
+    </h1>
+    <p class="muted" style="max-width:720px;">
+      PlaceHub is the College Placement and Recruitment Management System used by
+      students, recruiters, placement officers and college administration. It replaces
+      scattered spreadsheets and email threads with one database-backed workflow.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container grid-2">
+    <div class="card">
+      <div class="card-head"><h3><i class="bi bi-exclamation-circle" style="color:#d97706;"></i> The problem</h3></div>
+      <div class="card-body">
+        <p class="text-sm muted">
+          Placement cells usually manage hundreds of students, dozens of companies and
+          multiple recruitment rounds using spreadsheets, WhatsApp groups and email.
+          This creates duplicate records, missed deadlines, inconsistent eligibility
+          checks and no reliable way to answer simple questions such as
+          “how many MCA students are still unplaced?”
+        </p>
+        <div class="divider"></div>
+        <p class="text-sm muted">
+          Recruiters cannot see a verified applicant list, students do not know why they
+          are ineligible, and administrators cannot produce accurate placement statistics
+          without manually combining files.
+        </p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3><i class="bi bi-bullseye" style="color:#4f46e5;"></i> Our solution</h3></div>
+      <div class="card-body">
+        <p class="text-sm muted">
+          A relational MySQL database stores students, companies, jobs, applications,
+          rounds, interviews, offers and reports. A Flask application exposes four
+          role-based dashboards on top of that single database, so every user sees
+          the same accurate information with the permissions appropriate to their role.
+        </p>
+        <div class="divider"></div>
+        <div class="flex gap-1 wrap">
+          <span class="chip"><i class="bi bi-database-check"></i> 9 tables</span>
+          <span class="chip"><i class="bi bi-diagram-3"></i> 10 foreign keys</span>
+          <span class="chip"><i class="bi bi-shield-check"></i> Role-based access</span>
+          <span class="chip"><i class="bi bi-graph-up"></i> Live analytics</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section tight" style="background:#fff;border-block:1px solid var(--line);">
+  <div class="container">
+    <div class="section-head">
+      <span class="kicker">Objectives</span>
+      <h2>What the system is designed to achieve</h2>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="ico"><i class="bi bi-1-circle-fill"></i></div>
+        <h3>Centralise records</h3>
+        <p>Keep student academic data, company profiles, jobs, applications and offers in one consistent database.</p>
+      </div>
+      <div class="feature-card">
+        <div class="ico" style="background:#ecfdf5;color:#16a34a;"><i class="bi bi-2-circle-fill"></i></div>
+        <h3>Automate eligibility</h3>
+        <p>Compare CGPA and branch against each job’s criteria before a student applies, removing manual screening errors.</p>
+      </div>
+      <div class="feature-card">
+        <div class="ico" style="background:#fff7ed;color:#d97706;"><i class="bi bi-3-circle-fill"></i></div>
+        <h3>Track recruitment</h3>
+        <p>Follow every application through rounds, interview results, selection and final offer status.</p>
+      </div>
+      <div class="feature-card">
+        <div class="ico" style="background:#f0f9ff;color:#0284c7;"><i class="bi bi-4-circle-fill"></i></div>
+        <h3>Measure outcomes</h3>
+        <p>Calculate placement percentage, average and highest packages, and branch/company performance from live data.</p>
+      </div>
+      <div class="feature-card">
+        <div class="ico" style="background:#faf5ff;color:#7c3aed;"><i class="bi bi-5-circle-fill"></i></div>
+        <h3>Enforce integrity</h3>
+        <p>Use primary keys, foreign keys, unique constraints, checks and triggers to keep the data trustworthy.</p>
+      </div>
+      <div class="feature-card">
+        <div class="ico" style="background:#fef2f2;color:#e11d48;"><i class="bi bi-6-circle-fill"></i></div>
+        <h3>Support decisions</h3>
+        <p>Give the placement cell and administration the reports they need for reviews, accreditation and planning.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container grid-2">
+    <div class="card">
+      <div class="card-head"><h3><i class="bi bi-people-fill" style="color:#4f46e5;"></i> Who uses it</h3></div>
+      <div class="card-body">
+        <div class="round-list">
+          <div class="round-item">
+            <span class="round-num">S</span>
+            <div><strong>Students</strong><span>Register, maintain a profile, check eligibility, apply, and track interviews and offers.</span></div>
+          </div>
+          <div class="round-item">
+            <span class="round-num">R</span>
+            <div><strong>Recruiters</strong><span>Manage a company profile, publish jobs, shortlist applicants, run rounds and release offers.</span></div>
+          </div>
+          <div class="round-item">
+            <span class="round-num">O</span>
+            <div><strong>Placement officers</strong><span>Approve companies, maintain records, monitor recruitment and generate reports.</span></div>
+          </div>
+          <div class="round-item">
+            <span class="round-num">A</span>
+            <div><strong>Administration</strong><span>View college-wide statistics, monitor officers and oversee the entire placement season.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3><i class="bi bi-cpu-fill" style="color:#7c3aed;"></i> Technology stack</h3></div>
+      <div class="card-body">
+        <div class="kv">
+          <div><span>Database</span><strong>MySQL 8 + Workbench</strong></div>
+          <div><span>Backend</span><strong>Python Flask</strong></div>
+          <div><span>Connectivity</span><strong>mysql-connector-python</strong></div>
+          <div><span>Frontend</span><strong>HTML5, CSS3, JavaScript</strong></div>
+          <div><span>Icons &amp; charts</span><strong>Bootstrap Icons, Chart.js</strong></div>
+          <div><span>Security</span><strong>Werkzeug password hashing</strong></div>
+          <div><span>Editor</span><strong>Visual Studio Code</strong></div>
+          <div><span>Architecture</span><strong>Server-rendered MVC</strong></div>
+        </div>
+        <div class="divider"></div>
+        <p class="small muted">
+          The schema is normalised to third normal form. The many-to-many relationship
+          between students and jobs is resolved through the <code>Application</code>
+          bridge table, and interviews resolve the many-to-many link between
+          applications and recruitment rounds.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section tight">
+  <div class="container">
+    <div class="cta-band">
+      <div>
+        <h2>Numbers from the live database</h2>
+        <p>{{ stats.students }} students · {{ stats.companies }} companies · {{ stats.applications }} applications · {{ stats.placed }} placed</p>
+      </div>
+      <a class="btn btn-primary" href="{{ url_for('public_jobs') }}">Browse current openings</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

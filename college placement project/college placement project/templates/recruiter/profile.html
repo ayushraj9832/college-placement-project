@@ -1,0 +1,99 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge %}
+{% block title %}Company profile{% endblock %}
+{% block page_title %}Company profile{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Company profile</h1>
+    <p>This information is shown to students on job listings and the public companies page.</p>
+  </div>
+  <a class="btn btn-outline" href="{{ url_for('recruiter_dashboard') }}"><i class="bi bi-arrow-left"></i> Dashboard</a>
+</div>
+
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head"><h3>Edit company details</h3></div>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('recruiter_profile') }}">
+        <div class="form-grid">
+          <div class="field">
+            <label for="company_name">Company name <span class="req">*</span></label>
+            <input id="company_name" type="text" name="company_name" required maxlength="120" value="{{ company.Company_Name }}">
+          </div>
+          <div class="field">
+            <label for="industry">Industry <span class="req">*</span></label>
+            <input id="industry" type="text" name="industry" required maxlength="80" value="{{ company.Industry }}">
+          </div>
+          <div class="field">
+            <label for="location">Location <span class="req">*</span></label>
+            <input id="location" type="text" name="location" required maxlength="100" value="{{ company.Location }}">
+          </div>
+          <div class="field">
+            <label for="website">Website</label>
+            <input id="website" type="url" name="website" maxlength="150" value="{{ company.Website or '' }}" placeholder="https://company.com">
+          </div>
+          <div class="field">
+            <label for="hr_name">HR contact name <span class="req">*</span></label>
+            <input id="hr_name" type="text" name="hr_name" required maxlength="100" value="{{ company.HR_Name }}">
+          </div>
+          <div class="field">
+            <label for="hr_email">HR email (login) <span class="req">*</span></label>
+            <input id="hr_email" type="email" name="hr_email" required maxlength="120" value="{{ company.HR_Email }}">
+          </div>
+          <div class="field">
+            <label for="contact_number">Contact number <span class="req">*</span></label>
+            <input id="contact_number" type="tel" name="contact_number" required maxlength="15" value="{{ company.Contact_Number }}">
+          </div>
+          <div class="field">
+            <label>Approval status</label>
+            <div style="padding:10px 0;">{{ badge(company.Approval_Status) }}</div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <a class="btn btn-ghost" href="{{ url_for('recruiter_dashboard') }}">Cancel</a>
+          <button class="btn btn-primary" type="submit"><i class="bi bi-check2-circle"></i> Save company profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-body">
+        <div class="profile-head">
+          <div class="avatar-lg">{{ company.Company_Name[:1] }}</div>
+          <div>
+            <h3 style="font-size:1.05rem;">{{ company.Company_Name }}</h3>
+            <p class="small muted">{{ company.Industry }}</p>
+            <div class="mt-1">{{ badge(company.Approval_Status) }}</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="kv">
+          <div><span>Company ID</span><strong>#{{ company.Company_ID }}</strong></div>
+          <div><span>Location</span><strong>{{ company.Location }}</strong></div>
+          <div><span>HR contact</span><strong>{{ company.HR_Name }}</strong></div>
+          <div><span>HR email</span><strong>{{ company.HR_Email }}</strong></div>
+          <div><span>Phone</span><strong>{{ company.Contact_Number }}</strong></div>
+          <div><span>Onboarded</span><strong>{{ company.Created_At|dmy }}</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-2">
+      <div class="card-head"><h3>Account rules</h3></div>
+      <div class="card-body">
+        <div class="notice info">
+          <i class="bi bi-shield-check"></i>
+          <div>
+            Keep the HR email accurate — it is your login ID. Only approved companies can
+            publish jobs. Contact the placement cell if your company details need verification.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

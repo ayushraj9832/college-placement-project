@@ -1,0 +1,79 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, empty %}
+{% block title %}Eligible students · {{ job.Job_Title }}{% endblock %}
+{% block page_title %}Eligible students{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="small" href="{{ url_for('officer_company_detail', company_id=job.Company_ID) }}"><i class="bi bi-arrow-left"></i> Company</a>
+    <h1 class="mt-1">{{ job.Job_Title }}</h1>
+    <p>
+      {{ job.Company_Name }} · min {{ job.Min_CGPA }} CGPA ·
+      Branch {{ job.Eligible_Branch }} · {{ job.Salary_Package|money }} LPA
+    </p>
+  </div>
+  <div class="actions">
+    <span class="chip"><i class="bi bi-people"></i> {{ students|length }} eligible</span>
+    <span class="chip"><i class="bi bi-check2-circle"></i> {{ applied_count }} applied</span>
+  </div>
+</div>
+
+<div class="card">
+  {% if students %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Branch</th>
+            <th>CGPA</th>
+            <th>Batch</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Applied</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+            <tr>
+              <td>
+                <div class="person">
+                  <span class="avatar-sm">{{ student.Name[:1] }}</span>
+                  <div>
+                    <strong>{{ student.Name }}</strong>
+                    <span>#{{ student.Student_ID }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="small">{{ student.Branch }}</td>
+              <td><strong>{{ student.CGPA }}</strong></td>
+              <td class="small">{{ student.Batch_Year }}</td>
+              <td class="small">{{ student.Email }}</td>
+              <td class="small">{{ student.Phone }}</td>
+              <td>
+                {% if student.Has_Applied %}
+                  {{ badge('Applied') }}
+                {% else %}
+                  <span class="badge badge-muted">Not applied</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    {{ empty('people', 'No eligible students', 'No student currently meets both the CGPA and branch criteria for this job.') }}
+  {% endif %}
+</div>
+
+<div class="notice info mt-2">
+  <i class="bi bi-info-circle-fill"></i>
+  <div>
+    Eligibility is evaluated with the same rules the student portal uses: CGPA must be at
+    least the job minimum and the student's branch must appear in the job's allowed branch
+    list (or the job must allow <strong>All</strong> branches).
+  </div>
+</div>
+{% endblock %}

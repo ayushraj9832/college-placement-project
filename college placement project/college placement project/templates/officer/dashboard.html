@@ -1,0 +1,188 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, stat, empty %}
+{% block title %}Placement cell dashboard{% endblock %}
+{% block page_title %}Placement cell dashboard{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Placement overview</h1>
+    <p>Live figures for the 2026–27 season across every branch and company.</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-outline" href="{{ url_for('officer_reports') }}"><i class="bi bi-file-earmark-bar-graph"></i> Reports</a>
+    <a class="btn btn-primary" href="{{ url_for('officer_placements') }}"><i class="bi bi-award"></i> Manage placements</a>
+  </div>
+</div>
+
+<div class="stat-grid">
+  {{ stat('Registered students', stats.students, 'mortarboard', 'indigo', 'In the placement pool') }}
+  {{ stat('Students placed', stats.placed, 'award', 'green', stats.placement_rate ~ '% placement rate') }}
+  {{ stat('Application', stats.applications, 'file-earmark-text', 'sky', 'Submitted this season') }}
+  {{ stat('Average package', (stats.average|money) ~ ' LPA', 'cash-coin', 'violet', 'Highest ' ~ (stats.highest|money) ~ ' LPA') }}
+</div>
+
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head">
+      <div><h3>Branch-wise placements</h3><p>Placed students per branch.</p></div>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('officer_students') }}">Students</a>
+    </div>
+    <div class="card-body">
+      {% if branch_values %}
+        <div class="chart-box sm"><canvas id="branchChart"></canvas></div>
+      {% else %}
+        {{ empty('bar-chart', 'No branch data', 'Add students to see branch statistics.') }}
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Application status mix</h3></div>
+    <div class="card-body">
+      {% if status_values %}
+        <div class="chart-box sm"><canvas id="officerStatusChart"></canvas></div>
+      {% else %}
+        {{ empty('pie-chart', 'No applications yet', 'Statuses appear as students apply.') }}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% if pending %}
+<div class="card mt-2">
+  <div class="card-head">
+    <div><h3>Companies awaiting approval</h3><p>Verify these accounts before their jobs go live.</p></div>
+    <a class="btn btn-outline btn-sm" href="{{ url_for('officer_companies', status='Pending') }}">View all</a>
+  </div>
+  <div class="card-body tight">
+    {% for company in pending %}
+      <div class="round-item">
+        <div class="round-num">{{ company.Company_Name[:1] }}</div>
+        <div style="flex:1;">
+          <strong>{{ company.Company_Name }}</strong>
+          <span>{{ company.Industry }} · {{ company.Location }} · {{ company.HR_Email }}</span>
+        </div>
+        <div class="table-actions">
+          <form method="post" action="{{ url_for('officer_company_status', company_id=company.Company_ID, status='Approved') }}">
+            <button class="btn btn-success btn-sm" type="submit"><i class="bi bi-check2"></i> Approve</button>
+          </form>
+          <form method="post" action="{{ url_for('officer_company_status', company_id=company.Company_ID, status='Rejected') }}">
+            <button class="btn btn-danger btn-sm" type="submit" data-confirm="Reject this company account?"><i class="bi bi-x"></i> Reject</button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="dash-grid mt-2">
+  <div class="card">
+    <div class="card-head">
+      <div><h3>Top recruiting companies</h3><p>Ranked by confirmed selections.</p></div>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('officer_companies') }}">All companies</a>
+    </div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Company</th><th>Jobs</th><th>Applications</th><th>Selections</th><th>Avg package</th></tr></thead>
+        <tbody>
+          {% for company in companies %}
+            <tr>
+              <td>
+                <a href="{{ url_for('officer_company_detail', company_id=company.Company_ID) }}">
+                  <strong>{{ company.Company_Name }}</strong>
+                </a>
+              </td>
+              <td>{{ company.Jobs }}</td>
+              <td>{{ company.Applications }}</td>
+              <td><strong>{{ company.Selections }}</strong></td>
+              <td class="small">{{ company.Avg_Package|money }} LPA</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="5" class="muted small">No companies yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div><h3>Recent placements</h3><p>Latest offers and confirmations.</p></div>
+    </div>
+    <div class="card-body tight">
+      {% if recent %}
+        {% for placement in recent %}
+          <div class="round-item">
+            <div class="round-num">{{ placement.Student_Name[:1] }}</div>
+            <div style="flex:1;">
+              <strong>{{ placement.Student_Name }}</strong>
+              <span>{{ placement.Company_Name }} · {{ placement.Job_Title }}</span>
+            </div>
+            <div style="text-align:right;">
+              <div class="small"><strong>{{ placement.Package_Offered|money }} LPA</strong></div>
+              <div class="mt-1">{{ badge(placement.Status) }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        {{ empty('award', 'No placements yet', 'Offers will appear here as recruiters release them.') }}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const branchCanvas = document.getElementById("branchChart");
+  const branchLabels = {{ branch_labels|tojson }};
+  const branchValues = {{ branch_values|tojson }};
+  if (branchCanvas && branchLabels.length && typeof Chart !== "undefined") {
+    new Chart(branchCanvas, {
+      type: "bar",
+      data: {
+        labels: branchLabels,
+        datasets: [{
+          label: "Placed students",
+          data: branchValues,
+          backgroundColor: "#6366f1",
+          borderRadius: 7,
+          maxBarThickness: 44
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "#eef2f7" } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  const officerStatusCanvas = document.getElementById("officerStatusChart");
+  const officerStatusLabels = {{ status_labels|tojson }};
+  const officerStatusValues = {{ status_values|tojson }};
+  if (officerStatusCanvas && officerStatusLabels.length && typeof Chart !== "undefined") {
+    new Chart(officerStatusCanvas, {
+      type: "doughnut",
+      data: {
+        labels: officerStatusLabels,
+        datasets: [{
+          data: officerStatusValues,
+          backgroundColor: ["#6366f1", "#f59e0b", "#8b5cf6", "#0ea5e9", "#16a34a", "#ef4444", "#94a3b8"],
+          borderWidth: 0, hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: "66%",
+        plugins: { legend: { position: "bottom", labels: { boxWidth: 10, font: { size: 11 } } } }
+      }
+    });
+  }
+</script>
+{% endblock %}

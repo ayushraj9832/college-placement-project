@@ -1,0 +1,94 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import empty %}
+{% block title %}Recruitment rounds{% endblock %}
+{% block page_title %}Recruitment rounds{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Recruitment rounds</h1>
+    <p>Every round defined by every company. Add a missing round on behalf of a recruiter.</p>
+  </div>
+</div>
+
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head"><h3>All rounds</h3></div>
+    {% if rounds %}
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Job</th><th>Round</th><th>Type</th><th>Date</th><th>Max</th><th>Interviews</th><th></th></tr></thead>
+          <tbody>
+            {% for round in rounds %}
+              <tr>
+                <td>
+                  <strong class="small">{{ round.Job_Title }}</strong>
+                  <div class="small muted">{{ round.Company_Name }}</div>
+                </td>
+                <td class="small">{{ round.Round_Name }}</td>
+                <td><span class="badge badge-violet">{{ round.Round_Type }}</span></td>
+                <td class="small nowrap">{{ round.Round_Date|dmy }}</td>
+                <td class="small">{{ round.Max_Marks }}</td>
+                <td class="small">{{ round.Interview_Count }}</td>
+                <td>
+                  <form method="post" action="{{ url_for('officer_round_delete', round_id=round.Round_ID) }}">
+                    <button class="btn btn-danger btn-sm" type="submit"
+                            data-confirm="Delete this round? Interviews scheduled for it will also be deleted.">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {{ empty('list-ol', 'No rounds yet', 'Recruiters add rounds from their job pages.') }}
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Add a round</h3></div>
+    <div class="card-body">
+      <form method="post" action="{{ url_for('officer_rounds') }}">
+        <div class="grid" style="gap:14px;">
+          <div class="field">
+            <label for="job_id">Job <span class="req">*</span></label>
+            <select id="job_id" name="job_id" required>
+              <option value="">Select a job</option>
+              {% for job in jobs %}
+                <option value="{{ job.Job_ID }}">{{ job.Company_Name }} — {{ job.Job_Title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="round_name">Round name <span class="req">*</span></label>
+            <input id="round_name" type="text" name="round_name" required maxlength="80" placeholder="e.g. Round 1 - Aptitude">
+          </div>
+          <div class="field">
+            <label for="round_type">Round type <span class="req">*</span></label>
+            <select id="round_type" name="round_type" required>
+              {% for t in ROUND_TYPES %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field">
+            <label for="round_date">Round date <span class="req">*</span></label>
+            <input id="round_date" type="date" name="round_date" required>
+          </div>
+          <div class="field">
+            <label for="max_marks">Maximum marks <span class="req">*</span></label>
+            <input id="max_marks" type="number" name="max_marks" min="1" step="0.01" value="100" required>
+          </div>
+          <button class="btn btn-primary btn-block" type="submit"><i class="bi bi-plus-lg"></i> Add round</button>
+        </div>
+      </form>
+      <div class="divider"></div>
+      <p class="small muted">
+        Round names must be unique per job. The maximum marks caps the score a recruiter
+        can enter for an interview in this round.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

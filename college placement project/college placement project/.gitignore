@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+ENV/
+
+# Environment secrets
+.env
+
+# Bundled local MySQL data (created by start_database.bat)
+mysql-data/
+
+# Editors / OS
+.vscode/*
+!.vscode/launch.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Tooling
+.pytest_cache/
+.coverage
+htmlcov/
+*.log

@@ -1,0 +1,179 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, stat, empty %}
+{% block title %}Student dashboard{% endblock %}
+{% block page_title %}Student dashboard{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Hello, {{ student.Name.split(' ')[0] }} 👋</h1>
+    <p>{{ student.Branch }} · Batch {{ student.Batch_Year }} · CGPA {{ student.CGPA }}</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-outline" href="{{ url_for('student_profile') }}"><i class="bi bi-pencil-square"></i> Edit profile</a>
+    <a class="btn btn-primary" href="{{ url_for('student_jobs') }}"><i class="bi bi-search"></i> Find jobs</a>
+  </div>
+</div>
+
+<div class="stat-grid">
+  {{ stat('Applications', stats.applications, 'file-earmark-text', 'indigo', 'Total submitted') }}
+  {{ stat('Shortlisted', stats.shortlisted, 'check2-circle', 'violet', 'In active process') }}
+  {{ stat('Upcoming interviews', stats.interviews, 'camera-video', 'amber', 'Scheduled ahead') }}
+  {{ stat('Offers received', stats.offers, 'award', 'green', 'Released or accepted') }}
+</div>
+
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <h3>Recent applications</h3>
+        <p>Your last five applications and their current status.</p>
+      </div>
+      <a class="btn btn-outline btn-sm" href="{{ url_for('student_applications') }}">View all</a>
+    </div>
+    {% if applications %}
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr><th>Company</th><th>Role</th><th>Applied</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for app in applications %}
+              <tr>
+                <td>{{ app.Company_Name }}</td>
+                <td>
+                  <strong style="font-size:.84rem;">{{ app.Job_Title }}</strong>
+                  <div class="small muted">{{ app.Salary_Package|money }} LPA</div>
+                </td>
+                <td class="nowrap small">{{ app.Application_Date|dmy }}</td>
+                <td>{{ badge(app.Status) }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {{ empty('file-earmark-text', 'No applications yet', 'Browse open jobs and apply to roles you are eligible for.') }}
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Application status</h3></div>
+    <div class="card-body">
+      {% if status_values %}
+        <div class="chart-box sm"><canvas id="studentStatusChart"></canvas></div>
+      {% else %}
+        {{ empty('pie-chart', 'No data yet', 'Your status chart appears after your first application.') }}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="dash-grid mt-2">
+  <div class="card">
+    <div class="card-head">
+      <h3>Upcoming interviews</h3>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('student_interviews') }}">All interviews</a>
+    </div>
+    <div class="card-body tight">
+      {% if interviews %}
+        {% for interview in interviews %}
+          <div class="round-item">
+            <div class="round-num"><i class="bi bi-camera-video"></i></div>
+            <div style="flex:1;">
+              <strong>{{ interview.Round_Name }} — {{ interview.Company_Name }}</strong>
+              <span>{{ interview.Job_Title }} · {{ interview.Round_Type }}</span>
+            </div>
+            <div style="text-align:right;">
+              <div class="small"><strong>{{ interview.Interview_Date|dmy }}</strong></div>
+              <span class="small muted">{{ interview.Interviewer_Name }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        {{ empty('calendar-check', 'No interviews scheduled', 'Shortlisted applications will show interview details here.') }}
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Placement status</h3></div>
+    <div class="card-body">
+      {% if placement %}
+        {% if placement.Status in ['Offer Accepted', 'Joined'] %}
+          <div class="offer-banner">
+            <div class="ico"><i class="bi bi-award-fill"></i></div>
+            <div>
+              <strong>{{ placement.Company_Name }}</strong>
+              <span>{{ placement.Job_Title }} · {{ placement.Package_Offered|money }} LPA</span>
+            </div>
+          </div>
+        {% else %}
+          <div class="notice info">
+            <i class="bi bi-envelope-paper-fill"></i>
+            <div>
+              <strong>{{ placement.Company_Name }}</strong> has released an offer for
+              {{ placement.Job_Title }}. Current status: {{ placement.Status }}.
+            </div>
+          </div>
+        {% endif %}
+        <div class="kv mt-3">
+          <div><span>Package</span><strong>{{ placement.Package_Offered|money }} LPA</strong></div>
+          <div><span>Joining date</span><strong>{{ placement.Joining_Date|dmy }}</strong></div>
+          <div><span>Offer status</span><strong>{{ placement.Status }}</strong></div>
+          <div><span>Location</span><strong>{{ placement.Company_Name }}</strong></div>
+        </div>
+        <a class="btn btn-outline btn-sm mt-3" href="{{ url_for('student_placements') }}">View placement details</a>
+      {% else %}
+        <div class="notice">
+          <i class="bi bi-hourglass-split"></i>
+          <div>
+            <strong>No offer yet.</strong> Keep applying — {{ student.Branch }} students
+            with a CGPA of {{ student.CGPA }} are eligible for several open roles.
+          </div>
+        </div>
+        <a class="btn btn-primary btn-sm mt-3" href="{{ url_for('student_jobs') }}">Browse eligible jobs</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card mt-2">
+  <div class="card-head"><h3>Academic profile</h3><a class="btn btn-ghost btn-sm" href="{{ url_for('student_profile') }}">Manage</a></div>
+  <div class="card-body">
+    <div class="kv">
+      <div><span>Email</span><strong>{{ student.Email }}</strong></div>
+      <div><span>Phone</span><strong>{{ student.Phone }}</strong></div>
+      <div><span>Branch</span><strong>{{ student.Branch }}</strong></div>
+      <div><span>Batch year</span><strong>{{ student.Batch_Year }}</strong></div>
+      <div><span>CGPA</span><strong>{{ student.CGPA }}</strong></div>
+      <div><span>Date of birth</span><strong>{{ student.Date_of_Birth|dmy }}</strong></div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const studentStatusCanvas = document.getElementById("studentStatusChart");
+  if (studentStatusCanvas && typeof Chart !== "undefined") {
+    new Chart(studentStatusCanvas, {
+      type: "doughnut",
+      data: {
+        labels: {{ status_labels|tojson }},
+        datasets: [{
+          data: {{ status_values|tojson }},
+          backgroundColor: ["#6366f1", "#f59e0b", "#8b5cf6", "#0ea5e9", "#16a34a", "#ef4444", "#94a3b8"],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: "66%",
+        plugins: { legend: { position: "bottom", labels: { boxWidth: 10, font: { size: 11 } } } }
+      }
+    });
+  }
+</script>
+{% endblock %}

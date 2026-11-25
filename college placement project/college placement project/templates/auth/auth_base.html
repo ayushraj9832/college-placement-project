@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Login{% endblock %} · PlaceHub</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="auth-wrap">
+    <aside class="auth-side">
+      <a class="brand" href="{{ url_for('index') }}" style="color:#fff;">
+        <span class="brand-mark"><i class="bi bi-mortarboard-fill"></i></span>
+        <span class="brand-text">
+          <strong style="color:#fff;">PlaceHub</strong>
+          <small>Placement &amp; Recruitment</small>
+        </span>
+      </a>
+
+      <div class="auth-side-content">
+        <span class="eyebrow"><i class="bi bi-stars"></i> College Placement Cell</span>
+        <h1>{% block side_title %}Your campus placement journey, in one place.{% endblock %}</h1>
+        <p>{% block side_text %}Track eligibility, applications, interviews and offers without chasing emails or spreadsheets.{% endblock %}</p>
+        <ul class="auth-points">
+          <li><i class="bi bi-check-circle-fill"></i> Live job openings from verified companies</li>
+          <li><i class="bi bi-check-circle-fill"></i> Automatic CGPA and branch eligibility checks</li>
+          <li><i class="bi bi-check-circle-fill"></i> One dashboard for every application and interview</li>
+        </ul>
+      </div>
+
+      <div class="auth-quote">
+        “The placement cell finally has a single, accurate view of the entire season —
+        from the first application to the final offer.”
+      </div>
+    </aside>
+
+    <main class="auth-main">
+      <div class="auth-card {% block card_class %}{% endblock %}">
+        <div class="auth-head">
+          <span class="kicker">{% block portal_name %}Portal{% endblock %}</span>
+          <h2>{% block form_title %}{% endblock %}</h2>
+          <p>{% block form_subtitle %}{% endblock %}</p>
+        </div>
+
+        {% include "_flash.html" %}
+
+        {% block form %}{% endblock %}
+
+        <div class="auth-alt">{% block alt %}{% endblock %}</div>
+      </div>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

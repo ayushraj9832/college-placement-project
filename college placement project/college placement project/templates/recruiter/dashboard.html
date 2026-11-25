@@ -1,0 +1,143 @@
+{% extends "dashboard_base.html" %}
+{% from "_macros.html" import badge, stat, empty %}
+{% block title %}Recruiter dashboard{% endblock %}
+{% block page_title %}Recruiter dashboard{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>{{ company.Company_Name }}</h1>
+    <p>{{ company.Industry }} · {{ company.Location }} · HR: {{ company.HR_Name }}</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-outline" href="{{ url_for('recruiter_profile') }}"><i class="bi bi-building-gear"></i> Company profile</a>
+    <a class="btn btn-primary" href="{{ url_for('recruiter_job_new') }}"><i class="bi bi-plus-lg"></i> Post a job</a>
+  </div>
+</div>
+
+<div class="stat-grid">
+  {{ stat('Job openings', stats.jobs, 'briefcase', 'indigo', 'Published by your company') }}
+  {{ stat('Applications', stats.applications, 'file-earmark-text', 'sky', 'Across all jobs') }}
+  {{ stat('Shortlisted', stats.shortlisted, 'check2-circle', 'violet', 'Shortlisted or interviewing') }}
+  {{ stat('Selected', stats.selected, 'award', 'green', 'Marked as selected') }}
+</div>
+
+<div class="dash-grid">
+  <div class="card">
+    <div class="card-head">
+      <div><h3>Latest applicants</h3><p>Most recent applications across your openings.</p></div>
+      <a class="btn btn-outline btn-sm" href="{{ url_for('recruiter_jobs') }}">All jobs</a>
+    </div>
+    {% if applications %}
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Student</th><th>Role</th><th>CGPA</th><th>Applied</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for app in applications %}
+              <tr>
+                <td>
+                  <div class="person">
+                    <span class="avatar-sm">{{ app.Student_Name[:1] }}</span>
+                    <div><strong>{{ app.Student_Name }}</strong><span>{{ app.Branch }}</span></div>
+                  </div>
+                </td>
+                <td class="small">{{ app.Job_Title }}</td>
+                <td class="small">{{ app.CGPA }}</td>
+                <td class="small nowrap">{{ app.Application_Date|dmy }}</td>
+                <td>{{ badge(app.Status) }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      {{ empty('inbox', 'No applications yet', 'Publish a job opening to start receiving applications.') }}
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Application status</h3></div>
+    <div class="card-body">
+      {% if status_values %}
+        <div class="chart-box sm"><canvas id="recruiterStatusChart"></canvas></div>
+      {% else %}
+        {{ empty('pie-chart', 'No data yet', 'Statuses appear after your first application.') }}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="dash-grid mt-2">
+  <div class="card">
+    <div class="card-head">
+      <div><h3>Your job openings</h3><p>Application counts at a glance.</p></div>
+      <a class="btn btn-ghost btn-sm" href="{{ url_for('recruiter_jobs') }}">Manage all</a>
+    </div>
+    <div class="card-body tight">
+      {% if jobs %}
+        {% for job in jobs %}
+          <div class="round-item">
+            <div class="round-num"><i class="bi bi-briefcase"></i></div>
+            <div style="flex:1;">
+              <strong>{{ job.Job_Title }}</strong>
+              <span>{{ job.Job_Type }} · {{ job.Salary_Package|money }} LPA · closes {{ job.Application_Deadline|dmy }}</span>
+            </div>
+            <div style="text-align:right;">
+              <strong>{{ job.Application_Count }}</strong>
+              <div class="small muted">applicants</div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        {{ empty('briefcase', 'No jobs published', 'Create your first opening to begin hiring.') }}
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Upcoming interviews</h3></div>
+    <div class="card-body tight">
+      {% if interviews %}
+        {% for interview in interviews %}
+          <div class="round-item">
+            <div class="round-num"><i class="bi bi-camera-video"></i></div>
+            <div style="flex:1;">
+              <strong>{{ interview.Student_Name }}</strong>
+              <span>{{ interview.Job_Title }} · {{ interview.Round_Name }}</span>
+            </div>
+            <div class="small nowrap" style="text-align:right;">
+              {{ interview.Interview_Date|dmy }}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        {{ empty('calendar-check', 'No interviews scheduled', 'Schedule interviews from an applicant list.') }}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const recruiterStatusCanvas = document.getElementById("recruiterStatusChart");
+  if (recruiterStatusCanvas && typeof Chart !== "undefined") {
+    new Chart(recruiterStatusCanvas, {
+      type: "doughnut",
+      data: {
+        labels: {{ status_labels|tojson }},
+        datasets: [{
+          data: {{ status_values|tojson }},
+          backgroundColor: ["#6366f1", "#f59e0b", "#8b5cf6", "#0ea5e9", "#16a34a", "#ef4444", "#94a3b8"],
+          borderWidth: 0, hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: "66%",
+        plugins: { legend: { position: "bottom", labels: { boxWidth: 10, font: { size: 11 } } } }
+      }
+    });
+  }
+</script>
+{% endblock %}
